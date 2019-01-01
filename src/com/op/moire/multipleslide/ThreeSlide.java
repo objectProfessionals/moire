@@ -8,27 +8,28 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class ThreeSlide extends Base {
     private static final ThreeSlide threeSlide = new ThreeSlide();
     private String imagesDir = "faces";
-    private String imagesName = "facesC";
-//    private String imagesDir = "ILU";
+    private String imagesName = "facesB";
+    //    private String imagesDir = "ILU";
 //    private String imagesName = "ILU";
 //    private String imagesDir = "line";
 //    private String imagesName = "line";
-    private String dir = hostDir + "threeSlide/"+imagesDir+"/";
+    private String dir = hostDir + "threeSlide/" + imagesDir + "/";
     private String ip1src = imagesName + "1.png";
     private String ip2src = imagesName + "2.png";
     private String ip3src = imagesName + "3.png";
     private String opBsrc = imagesName + "B.png";
     private String opTsrc = imagesName + "T.png";
 
+    double dpi = 5*25.4;
     int ww = -1;
     int hh = -1;
     int www = -1;
     int hhh = -1;
+    int border = -1;
 
     BufferedImage ipImage1;
     BufferedImage ipImage2;
@@ -62,7 +63,26 @@ public class ThreeSlide extends Base {
                 lastPair = pair;
             }
         }
+        initMarkers();
         saveImages();
+    }
+
+    private void initMarkers() {
+        opGB.setColor(Color.RED);
+        opGB.fillRect(border, border, 2, 2);
+        opGB.fillRect((www + border) / 2, border, 2, 2);
+        opGB.fillRect(www + border - 2, border, 2, 2);
+        opGB.fillRect(border, hhh + border - 2, 2, 2);
+        opGB.fillRect((www + border) / 2, hhh + border - 2, 2, 2);
+        opGB.fillRect(www + border - 2, hhh + border - 2, 2, 2);
+
+        opGT.setColor(Color.RED);
+        opGT.fillRect(border, border, 2, 2);
+        opGT.fillRect(((www + border) / 2) - 2, border, 2, 2);
+        opGT.fillRect(www + border - 6, border, 2, 2);
+        opGT.fillRect(border, hhh + border - 2, 2, 2);
+        opGT.fillRect(((www + border) / 2) - 2, hhh + border - 2, 2, 2);
+        opGT.fillRect(www + border - 6, hhh + border - 2, 2, 2);
     }
 
     private Pair writeDiagonal(int x, int y, Pair lastPair) {
@@ -78,8 +98,8 @@ public class ThreeSlide extends Base {
     }
 
     private void saveImages() {
-        savePNGFile(opImageB, dir + opBsrc, 75);
-        savePNGFile(opImageT, dir + opTsrc, 75);
+        savePNGFile(opImageB, dir + opBsrc, dpi);
+        savePNGFile(opImageT, dir + opTsrc, dpi);
     }
 
     private Pair writeDiagonalFirst(int x, int y) {
@@ -119,21 +139,21 @@ public class ThreeSlide extends Base {
 
     private void fill(Graphics2D opG, boolean[] tb, int x, int y) {
         if (tb[0]) {
-            opG.fillRect(x, y, 1, 1);
+            opG.fillRect(x + border, y + border, 1, 1);
         }
         if (tb[1]) {
-            opG.fillRect(x + 1, y, 1, 1);
+            opG.fillRect(x + border + 1, y + border, 1, 1);
         }
         if (tb[2]) {
-            opG.fillRect(x, y + 1, 1, 1);
+            opG.fillRect(x + border, y + border + 1, 1, 1);
         }
         if (tb[3]) {
-            opG.fillRect(x + 1, y + 1, 1, 1);
+            opG.fillRect(x + border + 1, y + border + 1, 1, 1);
         }
     }
 
     private Pair matchBottom(boolean a1, boolean a2, boolean a3, int i2, int i3) {
-        Collections.shuffle(tops);
+        //Collections.shuffle(tops);
         for (Top top : tops) {
             //int[] matches = top.matchBlacks(a1, a2, a3, i2, i3);
             int[] matches = top.matchBlacksRnd(a1, a2, a3, i2, i3);
@@ -150,7 +170,7 @@ public class ThreeSlide extends Base {
     }
 
     private Pair matchBottomFirst(boolean a1, boolean a2, boolean a3) {
-        Collections.shuffle(tops);
+        //Collections.shuffle(tops);
         for (Top top : tops) {
             //int[] matches = top.matchBlacks(a1, a2, a3);
             int[] matches = top.matchBlacksRndFirst(a1, a2, a3);
@@ -196,14 +216,16 @@ public class ThreeSlide extends Base {
         www = ww * 2;
         hhh = hh * 2;
 
+        border = (int) ((double) (www) * 0.05);
+
         System.out.println("Creating...");
-        opImageB = createAlphaBufferedImage(www, hhh);
+        opImageB = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
         opGB = (Graphics2D) opImageB.getGraphics();
         opGB.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
         opGB.setColor(Color.BLACK);
 
-        opImageT = createAlphaBufferedImage(www, hhh);
+        opImageT = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
         opGT = (Graphics2D) opImageT.getGraphics();
         opGT.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
