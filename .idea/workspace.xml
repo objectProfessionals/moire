@@ -2,11 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf005d0-9d87-47ec-93a1-166e4f074f38" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/op/moire/multipleslide/Bottom.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/op/moire/multipleslide/Pair.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/op/moire/multipleslide/Pixel.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/op/moire/multipleslide/ThreeSlide.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/op/moire/multipleslide/Top.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -839,7 +834,14 @@
       <option name="project" value="LOCAL" />
       <updated>1545680163378</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Improve sliding">
+      <created>1546347513595</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1546347513595</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -908,7 +910,8 @@
     <MESSAGE value="MOIRE: initial push" />
     <MESSAGE value="MOIRE: ignoring" />
     <MESSAGE value="Added sliding moire etc" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added sliding moire etc" />
+    <MESSAGE value="Improve sliding" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve sliding" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
