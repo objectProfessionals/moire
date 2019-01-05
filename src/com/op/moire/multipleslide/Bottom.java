@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Bottom extends Pixel {
 
-    final static int NUM_BLACKS = 1;
 
     public Bottom(String value) {
         super();
@@ -19,7 +18,7 @@ public class Bottom extends Pixel {
             String bin = Integer.toBinaryString(i);
             String padded = String.format(numBits, bin).replaceAll(" ", "0");
             long count = padded.chars().filter(ch -> ch == '1').count();
-            if (count == NUM_BLACKS) {
+            if (count == NUM_BLACKS_BOTTOM) {
                 Bottom bottom = new Bottom(padded);
                 bottoms.add(bottom);
             }

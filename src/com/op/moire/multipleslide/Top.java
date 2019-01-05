@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Top extends Pixel {
 
-    static final int NUM_BLACKS = 2;
     ArrayList<Bottom> bottoms;
     ArrayList<Boolean> blacks = new ArrayList();
 
@@ -16,14 +15,14 @@ public class Top extends Pixel {
     }
 
     static ArrayList<Top> setupBlacks(ArrayList<Bottom> bottoms) {
-        String numBits = "%"+ Pixel.NUM_PIXELS+"s";
+        String numBits = "%" + Pixel.NUM_PIXELS + "s";
         ArrayList<Top> tops = new ArrayList<>();
         int allVariations = (int) Math.pow(2, Pixel.NUM_PIXELS);
         for (int i = 0; i < allVariations; i++) {
             String bin = Integer.toBinaryString(i);
             String padded = String.format(numBits, bin).replaceAll(" ", "0");
             long count = padded.chars().filter(ch -> ch == '1').count();
-            if (count == NUM_BLACKS) {
+            if (count == NUM_BLACKS_TOP) {
                 Top top = new Top(padded, bottoms);
                 tops.add(top);
             }
@@ -32,29 +31,32 @@ public class Top extends Pixel {
     }
 
 
-
     private void initBlacks() {
         int i = 0;
         for (Bottom bottom : bottoms) {
-            blacks.add(isBlack(bottom));
+            blacks.add(isCombinedBlack(bottom));
             i++;
         }
     }
 
-    private boolean isBlack(Bottom bottom) {
+    private boolean isCombinedBlack(Bottom bottom) {
         int val = 0;
-        for (int n = 0; n < NUM_PIXELS; n++) {
+        for (int n = 0; n < Pixel.NUM_PIXELS; n++) {
             String bn = this.value.substring(n, n + 1);
             String tn = bottom.value.substring(n, n + 1);
             if ("1".equals(bn) || "1".equals(tn)) {
                 val = val + 1;
             }
         }
-        return val > 2;
+        return val >= Pixel.NUM_BLACK_PIXELS;
     }
 
 
     public int[] matchBlacksRnd(boolean black1, boolean black2, boolean black3, int i2, int i3) {
+        //true,true,false,6,15
+        if (!black1 && !black2 && black3) {
+            //System.out.println();
+        }
         if (blacks.get(i2) != black1 || blacks.get(i3) != black2) {
             int[] pos = {-1, -1, -1};
             return pos;
@@ -65,9 +67,9 @@ public class Top extends Pixel {
         ArrayList<Boolean> allblacks = new ArrayList<>();
         allblacks.addAll(blacks);
         allblacks.addAll(blacks);
-        while (count < NUM_PIXELS-1) {
-            int rnd = (int) (Math.random() * (NUM_PIXELS*2));
-            if (matchInds[0] == rnd || matchInds[1] == rnd) {
+        while (count < 3) {
+            int rnd = (int) (Math.random() * ((blacks.size()) * 2));
+            if (matchInds[0] == rnd % (blacks.size())) {
                 continue;
             }
             if (matchInds[1] == rnd % (blacks.size())) {
@@ -89,9 +91,12 @@ public class Top extends Pixel {
         ArrayList<Boolean> allblacks = new ArrayList<>();
         allblacks.addAll(blacks);
         allblacks.addAll(blacks);
-        while (count < NUM_PIXELS-1) {
-            int rnd = (int) (Math.random()  * (NUM_PIXELS*2));
+        while (count < 3) {
+            int rnd = (int) (Math.random() * ((blacks.size()) * 2));
             if (matchInds[0] == rnd || matchInds[1] == rnd) {
+                continue;
+            }
+            if (matchInds[0] == rnd % (blacks.size())) {
                 continue;
             }
             if (matchInds[1] == rnd % (blacks.size())) {

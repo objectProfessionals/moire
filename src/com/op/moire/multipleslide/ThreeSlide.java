@@ -13,7 +13,7 @@ import java.util.Collections;
 public class ThreeSlide extends Base {
     private static final ThreeSlide threeSlide = new ThreeSlide();
     private String imagesDir = "faces";
-    private String imagesName = "facesC";
+    private String imagesName = "facesB";
     //    private String imagesDir = "scene";
 //    private String imagesName = "scene";
     //    private String imagesDir = "line";
@@ -24,6 +24,7 @@ public class ThreeSlide extends Base {
     private String ip3src = imagesName + "3.png";
     private String opBsrc = imagesName + "B.png";
     private String opTsrc = imagesName + "T.png";
+    private boolean doShuffle = false;
 
     double dpi = 5 * 25.4;
     int ww = -1;
@@ -31,6 +32,7 @@ public class ThreeSlide extends Base {
     int www = -1;
     int hhh = -1;
     int border = -1;
+    int pixelWidth = -1;
 
     BufferedImage ipImage1;
     BufferedImage ipImage2;
@@ -51,7 +53,6 @@ public class ThreeSlide extends Base {
         setup();
         initImages();
 
-
         for (int y = 2; y < hh - 2; y++) {
             Row lastRow = null;
             for (int x = 2; x < ww - 2; x++) {
@@ -68,46 +69,25 @@ public class ThreeSlide extends Base {
         saveImages();
     }
 
-    private void initMarkers() {
-        opGB.setColor(Color.RED);
-        opGB.fillRect(border, border, 2, 2);
-        opGB.fillRect((www + border) / 2, border, 2, 2);
-        opGB.fillRect(www + border - 2, border, 2, 2);
-        opGB.fillRect(border, hhh + border - 2, 2, 2);
-        opGB.fillRect((www + border) / 2, hhh + border - 2, 2, 2);
-        opGB.fillRect(www + border - 2, hhh + border - 2, 2, 2);
-
-        opGT.setColor(Color.RED);
-        opGT.fillRect(border, border, 2, 2);
-        opGT.fillRect(((www + border) / 2) - 2, border, 2, 2);
-        opGT.fillRect(www + border - 6, border, 2, 2);
-        opGT.fillRect(border, hhh + border - 2, 2, 2);
-        opGT.fillRect(((www + border) / 2) - 2, hhh + border - 2, 2, 2);
-        opGT.fillRect(www + border - 6, hhh + border - 2, 2, 2);
-    }
-
     private Row writeDiagonal(int x, int y, Row lastRow) {
-        boolean a1 = -1 != ipImage1.getRGB(x, y);
-        boolean a2 = -1 != ipImage2.getRGB(x, y);
-        boolean a3 = -1 != ipImage3.getRGB(x, y);
+        boolean a1 = isBlack(ipImage1, x, y);
+        boolean a2 = isBlack(ipImage2, x, y);
+        boolean a3 = isBlack(ipImage3, x, y);
 
         Row row = matchBottom(a1, a2, a3, bottoms.indexOf(lastRow.botn2), bottoms.indexOf(lastRow.botn3));
         if (row != null) {
             setPixels(row, x, y);
-
+        } else {
+            System.out.println("row is null at x,y:"+x+ ","+y);
         }
         return row;
     }
 
-    private void saveImages() {
-        savePNGFile(opImageB, dir + opBsrc, dpi);
-        savePNGFile(opImageT, dir + opTsrc, dpi);
-    }
-
     private Row writeDiagonalFirst(int x, int y) {
-        boolean a1 = -1 != ipImage1.getRGB(x, y);
-        boolean a2 = -1 != ipImage2.getRGB(x, y);
-        boolean a3 = -1 != ipImage3.getRGB(x, y);
+        boolean a1 = isBlack(ipImage1, x, y);
+        boolean a2 = isBlack(ipImage2, x, y);
+        boolean a3 = isBlack(ipImage3, x, y);
+
         Row row = matchBottomFirst(a1, a2, a3);
         if (row != null) {
             setPixelsFirst(row, x, y);
@@ -117,51 +97,52 @@ public class ThreeSlide extends Base {
     }
 
     private void setPixelsFirst(Row row, int x, int y) {
+        float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y)) / 3.0);
 
         boolean[] tb = row.botn1.getValueAsBooleans();
-        fill(opGB, tb, 2 * x, 2 * y);
+        fill(opGB, tb, pixelWidth * x, pixelWidth * y, avgGrey);
 
         boolean[] tb2 = row.botn2.getValueAsBooleans();
-        fill(opGB, tb2, 2 * (x + 1), 2 * y);
+        fill(opGB, tb2, pixelWidth * (x + 1), pixelWidth * y, avgGrey);
 
         boolean[] tt = row.top.getValueAsBooleans();
-        fill(opGT, tt, 2 * x, 2 * y);
+        fill(opGT, tt, pixelWidth * x, pixelWidth * y, avgGrey);
 
     }
 
     private void setPixels(Row row, int x, int y) {
+        float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y)) / 3.0);
 
         boolean[] tb3 = row.botn2.getValueAsBooleans();
-        fill(opGB, tb3, 2 * (x + 1), 2 * y);
+        fill(opGB, tb3, pixelWidth * (x + 1), pixelWidth * y, avgGrey);
 
         boolean[] tt = row.top.getValueAsBooleans();
-        fill(opGT, tt, 2 * x, 2 * y);
+        fill(opGT, tt, pixelWidth * x, pixelWidth * y, avgGrey);
 
     }
 
-    private void fill(Graphics2D opG, boolean[] tb, int x, int y) {
-        if (tb[0]) {
-            opG.fillRect(x + border, y + border, 1, 1);
-        }
-        if (tb[1]) {
-            opG.fillRect(x + border + 1, y + border, 1, 1);
-        }
-        if (tb[2]) {
-            opG.fillRect(x + border, y + border + 1, 1, 1);
-        }
-        if (tb[3]) {
-            opG.fillRect(x + border + 1, y + border + 1, 1, 1);
+    private void fill(Graphics2D opG, boolean[] tb, int xOff, int yOff, float greyValue) {
+        int c = 0;
+        float ff = 0.25f;
+        opG.setColor(new Color(0f, 0f, 0f, 1 - (ff * greyValue)));
+        for (int y = 0; y < pixelWidth; y++) {
+            for (int x = 0; x < pixelWidth; x++) {
+                if (tb[c]) {
+                    opG.fillRect(xOff + x + border, yOff + y + border, 1, 1);
+                }
+                c++;
+            }
         }
     }
 
-    private boolean bwreset = false;
     private Row matchBottom(boolean a1, boolean a2, boolean a3, int i2, int i3) {
-        Collections.shuffle(tops);
+        shuffle(tops);
+        System.out.println("a1,a2,a3 i2,i3="+a1+","+a2+","+a3+","+i2+","+i3);
         for (Top top : tops) {
             //int[] matches = top.matchBlacks(a1, a2, a3, i2, i3);
             int[] matches = top.matchBlacksRnd(a1, a2, a3, i2, i3);
             if (isMatched(matches)) {
-                Boolean allBlackOrWhite = print(top, matches);
+                Boolean allBlackOrWhite = printMatched(top, matches);
                 if (matches[1] == matches[2]) {
                     break;
                 }
@@ -170,16 +151,16 @@ public class ThreeSlide extends Base {
             }
 
         }
-        return null;
+        return null; //matchBottom(a1, a2, a3, i2, i3);
     }
 
     private Row matchBottomFirst(boolean a1, boolean a2, boolean a3) {
-        Collections.shuffle(tops);
+        shuffle(tops);
         for (Top top : tops) {
             //int[] matches = top.matchBlacks(a1, a2, a3);
             int[] matches = top.matchBlacksRndFirst(a1, a2, a3);
             if (isMatched(matches)) {
-                print(top, matches);
+                printMatched(top, matches);
                 if (matches[1] == matches[2]) {
                     break;
                 }
@@ -190,7 +171,13 @@ public class ThreeSlide extends Base {
         return null;
     }
 
-    private Boolean print(Top top, int[] matches) {
+    private void shuffle(ArrayList<Top> tops) {
+        if (doShuffle) {
+            Collections.shuffle(tops);
+        }
+    }
+
+    private Boolean printMatched(Top top, int[] matches) {
         System.out.print(top.value + ":");
         String blacks = "";
         for (int m : matches) {
@@ -225,8 +212,8 @@ public class ThreeSlide extends Base {
         ipImage3 = ImageIO.read(new File(dir + ip3src));
         ww = ipImage1.getWidth();
         hh = ipImage1.getHeight();
-        www = ww * 2;
-        hhh = hh * 2;
+        www = ww * pixelWidth;
+        hhh = hh * pixelWidth;
 
         border = (int) ((double) (www) * 0.05);
 
@@ -247,22 +234,40 @@ public class ThreeSlide extends Base {
     private void setup() {
         bottoms = Bottom.setupBlacks();
         tops = Top.setupBlacks(bottoms);
+        pixelWidth = (int) Math.sqrt(Pixel.NUM_PIXELS);
+    }
 
-        Top b1 = new Top("1100", bottoms);
-        Top b2 = new Top("0110", bottoms);
-        Top b3 = new Top("0011", bottoms);
-        Top b4 = new Top("1001", bottoms);
-        Top b5 = new Top("1010", bottoms);
-        Top b6 = new Top("0101", bottoms);
+    private boolean isBlack(BufferedImage image, int x, int y) {
+        return getGrey(image, x, y) < 0.5;
+        //return -1 != image.getRGB(x, y);
+    }
 
-        tops = new ArrayList();
-        tops.add(b1);
-        tops.add(b2);
-        tops.add(b3);
-        tops.add(b4);
-        tops.add(b5);
-        tops.add(b6);
+    private double getGrey(BufferedImage image, int x, int y) {
+        Color col = new Color(image.getRGB(x, y));
+        return (col.getRed() + col.getGreen() + col.getBlue()) / (255.0 * 3.0);
+    }
 
+    private void saveImages() {
+        savePNGFile(opImageB, dir + opBsrc, dpi);
+        savePNGFile(opImageT, dir + opTsrc, dpi);
+    }
+
+    private void initMarkers() {
+        opGB.setColor(Color.RED);
+        opGB.fillRect(border, border, pixelWidth, pixelWidth);
+        opGB.fillRect((www + border) / 2, border, pixelWidth, pixelWidth);
+        opGB.fillRect(www + border - pixelWidth, border, pixelWidth, pixelWidth);
+        opGB.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGB.fillRect((www + border) / 2, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGB.fillRect(www + border - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+
+        opGT.setColor(Color.RED);
+        opGT.fillRect(border, border, pixelWidth, pixelWidth);
+        opGT.fillRect(((www + border) / 2) - pixelWidth, border, pixelWidth, pixelWidth);
+        opGT.fillRect(www + border - (3 * pixelWidth), border, pixelWidth, pixelWidth);
+        opGT.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGT.fillRect(((www + border) / 2) - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGT.fillRect(www + border - (3 * pixelWidth), hhh + border - pixelWidth, pixelWidth, pixelWidth);
     }
 
 }
