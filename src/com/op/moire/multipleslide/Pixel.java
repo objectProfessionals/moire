@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class Pixel {
 
+    //static final int[] NUMS = {16, 12, 8, 4};
     static final int[] NUMS = {9, 7, 5, 3};
     //static final int[] NUMS = {4, 3, 2, 1};
     static final int NUM_PIXELS = NUMS[0];

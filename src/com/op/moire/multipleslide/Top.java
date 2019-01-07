@@ -1,6 +1,7 @@
 package com.op.moire.multipleslide;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Top extends Pixel {
 
@@ -53,10 +54,6 @@ public class Top extends Pixel {
 
 
     public int[] matchBlacksRnd(boolean black1, boolean black2, boolean black3, int i2, int i3) {
-        //true,true,false,6,15
-        if (!black1 && !black2 && black3) {
-            //System.out.println();
-        }
         if (blacks.get(i2) != black1 || blacks.get(i3) != black2) {
             int[] pos = {-1, -1, -1};
             return pos;
@@ -110,6 +107,108 @@ public class Top extends Pixel {
         return matchInds;
     }
 
+    public int[] matchBlacksRnd(Boolean[] blacksToMatch, Integer[] in, int minMissed) {
+        int missed = blacks.get(in[0]) != blacksToMatch[0] ? 1 : 0;
+        missed = missed + (blacks.get(in[1]) != blacksToMatch[1] ? 1 : 0);
+        missed = missed + (blacks.get(in[2]) != blacksToMatch[2] ? 1 : 0);
+        missed = missed + (blacks.get(in[3]) != blacksToMatch[3] ? 1 : 0);
+
+        boolean[] toMatch = new boolean[blacksToMatch.length];
+        for (int c=0; c<blacksToMatch.length; c++) {
+            toMatch[c] = blacksToMatch[c];
+        }
+
+        ArrayList<Boolean> allblacks = new ArrayList<>();
+        allblacks.addAll(blacks);
+        allblacks.addAll(blacks);
+        int[] matchInds = new int[blacksToMatch.length];
+
+        for (int c =0; c<in.length; c++) {
+            matchInds[c] = in[c];
+        }
+
+        if ( minMissed == 1) {
+            if (allblacks.get(0) == toMatch[4]) {
+                matchInds[4] = matchInds[0];
+                return matchInds;
+            }
+            if (allblacks.get(1) == toMatch[4]) {
+                matchInds[4] = matchInds[1];
+                return matchInds;
+            }
+            if (allblacks.get(2) == toMatch[4]) {
+                matchInds[4] = matchInds[2];
+                return matchInds;
+            }
+        }
+        if ( missed > minMissed) {
+            int[] pos = new int[blacksToMatch.length];
+            Arrays.fill(pos, -1);
+
+            return pos;
+        }
+        int count = 4;
+        //int[] matchInds = {i2, i3, -1};
+
+        while (count < blacksToMatch.length) {
+            int rnd = (int) (Math.random() * ((blacks.size()) * 2));
+            if (matchInds[0] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[1] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[2] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[3] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (allblacks.get(rnd) == toMatch[count]) {
+                matchInds[count] = rnd % (blacks.size());
+                count++;
+            }
+        }
+
+        return matchInds;
+    }
+
+    public int[] matchBlacksRndFirst(Boolean[] blacksToMatch) {
+        int count = 0;
+        //int[] matchInds = {-1, -1, -1};
+        int[] matchInds = new int[blacksToMatch.length];
+        Arrays.fill(matchInds, -1);
+
+        boolean[] toMatch = new boolean[blacksToMatch.length];
+        Arrays.fill(toMatch, false);
+        ArrayList<Boolean> allblacks = new ArrayList<>();
+        allblacks.addAll(blacks);
+        allblacks.addAll(blacks);
+        while (count < 5) {
+            int rnd = (int) (Math.random() * ((blacks.size()) * 2));
+            if (matchInds[0] == rnd || matchInds[1] == rnd) {
+                continue;
+            }
+            if (matchInds[0] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[1] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[2] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (matchInds[3] == rnd % (blacks.size())) {
+                continue;
+            }
+            if (allblacks.get(rnd) == toMatch[count]) {
+                matchInds[count] = rnd % (blacks.size());
+                count++;
+            }
+        }
+        return matchInds;
+
+    }
     public int[] matchBlacks(boolean black1, boolean black2, boolean black3, int i2, int i3) {
         if (blacks.get(i2) != black1 || blacks.get(i3) != black2) {
             int[] pos = {-1, -1, -1};
