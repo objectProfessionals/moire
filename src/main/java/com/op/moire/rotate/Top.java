@@ -104,11 +104,9 @@ public class Top extends Pixel {
 //        boolean w2 = isMatch(bottom, NUM_BLACKS_TOP-1);
 //        boolean w3 = isMatch(bottom, NUM_BLACKS_TOP-2);
         if (blackOrWhite) {
-            boolean b = isMatch(bottom, NUM_BLACK_PIXELS);
-            return b;
+            return isMatch(bottom, NUM_BLACK_PIXELS);
         } else {
-            boolean w = isMatch(bottom, NUM_BLACKS_TOP);
-            return w;
+            return isMatch(bottom, NUM_BLACKS_TOP);
         }
     }
 

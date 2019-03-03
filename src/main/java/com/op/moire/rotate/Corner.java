@@ -12,18 +12,18 @@ public class Corner {
     }
 
     public void filterMatchingTopBots(Corner cornerB, double ang, int offset) {
-        this.removeEmpties();
-        //System.out.println("top2Bots="+top2Bots.size());
         cornerB.removeEmpties();
-        //System.out.println("cornerB.top2Bots="+cornerB.top2Bots.size());
         for (Top top : this.top2Bots.keySet()) {
+            ArrayList<Bottom> botsToRet = new ArrayList<>();
             for (Top topB : cornerB.top2Bots.keySet()) {
-                if (top.rotateEquals(ang, topB)) {
+                if (topB.rotateEquals(ang, top)) {
                     ArrayList<Bottom> bots = this.top2Bots.get(top);
                     ArrayList<Bottom> botsB = cornerB.top2Bots.get(topB);
-                    bots.retainAll(botsB);
+//                    bots.retainAll(botsB);
+                    botsToRet.addAll(botsB);
                 }
             }
+            this.top2Bots.get(top).retainAll(botsToRet);
         }
         this.removeEmpties();
         System.out.println("top2Bots="+top2Bots.size());

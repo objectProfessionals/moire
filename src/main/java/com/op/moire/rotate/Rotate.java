@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 public class Rotate extends Base {
     private static final Rotate fourRotate = new Rotate();
-    private String imagesDir = "test";
+    private String imagesDir = "test3";
     private String imagesName = "test";
     private String dir = hostDir + "fourRotate/" + imagesDir + "/";
     private String ip1src = imagesName + "1.png";
@@ -122,28 +122,20 @@ public class Rotate extends Base {
         finalBots = new ArrayList();
 
         Corner[][] corners = getCorners(x1, y1, x2, y2, x3, y3, x4, y4);
-        System.out.println("corners found:"+x1+":"+y1);
+        System.out.println("corners found:" + x1 + ":" + y1);
 
         for (int j = 0; j < 4; j++) {
 
-//            private void matchAllCorners(Corner[] cornersA, Corner[] cornersB, Corner[] cornersC, Corner[] cornersD) {
-//                for (int i=0; i<4; i++) {
-//                    Corner cornerIA = cornersA[i];
-//                    Corner cornerIB = cornersB[i];
-//                    Corner cornerIC = cornersC[i];
-//                    Corner cornerID = cornersD[i];
-//
-//                    filterMathingtopBot(cornerIA, cornerIB, cornerIC, cornerID);
-//                }
-//            }
-//
+            int k = (j + 3) % 4;
+            int l = (j + 2) % 4;
+            int m = (j + 1) % 4;
+            Corner cornA = corners[0][j];
+            Corner cornB = corners[1][k];
+            Corner cornC = corners[2][l];
+            Corner cornD = corners[3][m];
+            filterMathingTopBotsToCornerA(cornA, cornB, cornC, cornD);
 
-            int k = (j+1) %4;
-            int l = (j+2) %4;
-            int m = (j+3) %4;
-            filterMathingtopBot(corners[0][j], corners[1][k], corners[2][l], corners[3][m]);
-
-            HashMap<Top, ArrayList<Bottom>> top2BotsForA =corners[0][j].top2Bots;
+            HashMap<Top, ArrayList<Bottom>> top2BotsForA = corners[0][j].top2Bots;
             Iterator<Top> it = top2BotsForA.keySet().iterator();
             if (top2BotsForA.isEmpty()) {
                 System.out.println("none found");
@@ -154,7 +146,7 @@ public class Rotate extends Base {
                 //Top topA = getRandom(it);
                 Top topA = it.next();
                 ArrayList<Bottom> allBots = getBottoms(top2BotsForA, topA);
-                Bottom botA = allBots.get(allBots.size()-1);
+                Bottom botA = allBots.get(allBots.size() - 1);
                 finalTops.add(topA);
                 finalBots.add(botA);
                 tryAgain = false;
@@ -172,6 +164,13 @@ public class Rotate extends Base {
 
     }
 
+    private void filterMathingTopBotsToCornerA(Corner cornerA, Corner cornerB, Corner cornerC, Corner cornerD) {
+
+        cornerA.filterMatchingTopBots(cornerB, 90, -1);
+        cornerA.filterMatchingTopBots(cornerC, 180, -2);
+        cornerA.filterMatchingTopBots(cornerD, 270, -3);
+    }
+
     private ArrayList<Bottom> getBottoms(HashMap<Top, ArrayList<Bottom>> top2BotsForA, Top topA) {
         return top2BotsForA.get(topA);
     }
@@ -182,7 +181,7 @@ public class Rotate extends Base {
             allTops.add(it.next());
         }
 
-        int i = (int) (Math.random()*allTops.size());
+        int i = (int) (Math.random() * allTops.size());
         return allTops.get(i);
     }
 
@@ -206,10 +205,10 @@ public class Rotate extends Base {
         for (Top top : tops) {
             int b = 0;
             for (Bottom bot : bottoms) {
-                matchTopBots(blacksNeededA, cornersA, top, bot, b);
-                matchTopBots(blacksNeededB, cornersB, top, bot, b);
-                matchTopBots(blacksNeededC, cornersC, top, bot, b);
-                matchTopBots(blacksNeededD, cornersD, top, bot, b);
+                matchTopBots(blacksNeededA, cornersA, top, bot, b, 0);
+                matchTopBots(blacksNeededB, cornersB, top, bot, b, -90);
+                matchTopBots(blacksNeededC, cornersC, top, bot, b, -180);
+                matchTopBots(blacksNeededD, cornersD, top, bot, b,-270);
                 b++;
             }
         }
@@ -218,16 +217,18 @@ public class Rotate extends Base {
         return corners;
     }
 
-    private void matchTopBots(Boolean[] blacksNeeded, Corner[] corners, Top top, Bottom bot, int b) {
+    private void matchTopBots(Boolean[] blacksNeeded, Corner[] corners, Top top,
+                              Bottom bot, int b, double rot) {
+
         ArrayList<Bottom> matchedBots0 = new ArrayList<>();
         ArrayList<Bottom> matchedBots1 = new ArrayList<>();
         ArrayList<Bottom> matchedBots2 = new ArrayList<>();
         ArrayList<Bottom> matchedBots3 = new ArrayList<>();
 
-        matchTopBots(blacksNeeded[0], corners[0], top, matchedBots0, b, bot);
-        matchTopBots(blacksNeeded[1], corners[1], top, matchedBots1, b, bot);
-        matchTopBots(blacksNeeded[2], corners[2], top, matchedBots2, b, bot);
-        matchTopBots(blacksNeeded[3], corners[3], top, matchedBots3, b, bot);
+        matchTopBots(blacksNeeded[0], corners[0], top, matchedBots0, b, bot, rot);
+        matchTopBots(blacksNeeded[1], corners[1], top, matchedBots1, b, bot, rot);
+        matchTopBots(blacksNeeded[2], corners[2], top, matchedBots2, b, bot, rot);
+        matchTopBots(blacksNeeded[3], corners[3], top, matchedBots3, b, bot, rot);
     }
 
     private Corner[] initNewCorners() {
@@ -254,15 +255,9 @@ public class Rotate extends Base {
         return blacksNeeded;
     }
 
-    private void filterMathingtopBot(Corner cornerA, Corner cornerB, Corner cornerC, Corner cornerD) {
-
-        cornerA.filterMatchingTopBots(cornerB, 90, -1);
-        cornerA.filterMatchingTopBots(cornerC, 180, -2);
-        cornerA.filterMatchingTopBots(cornerD, 270, -3);
-    }
-
-    private void matchTopBots(Boolean val, Corner corner, Top top, ArrayList<Bottom> matchedBots, int b, Bottom bot) {
-        boolean match = top.blacks.get(b).equals(val);
+    private void matchTopBots(Boolean val, Corner corner, Top top, ArrayList<Bottom> matchedBots, int b, Bottom bot, double rot) {
+        //boolean match = top.blacks.get(b).equals(val);
+        boolean match = top.isMatchWithBottomBlackOrWhite(bot, val);
         if (match) {
             if (getBottoms(corner.top2Bots, top) == null) {
                 corner.top2Bots.put(top, matchedBots);
