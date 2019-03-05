@@ -9,20 +9,20 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 public class Rotate extends Base {
     private static final Rotate fourRotate = new Rotate();
-    private String imagesDir = "test3";
-    private String imagesName = "test";
+    private String imagesDir = "sanVir";
+    private String imagesName = "sanVir";
     private String dir = hostDir + "fourRotate/" + imagesDir + "/";
-    private String ip1src = imagesName + "1.png";
-    private String ip2src = imagesName + "2.png";
-    private String ip3src = imagesName + "3.png";
-    private String ip4src = imagesName + "4.png";
-    private String opBsrc = imagesName + "B.png";
-    private String opTsrc = imagesName + "T.png";
+    private String ipExt = ".jpg";
+    private String opExt = ".png";
+    private String ip1src = imagesName + "1" + ipExt;
+    private String ip2src = imagesName + "2" + ipExt;
+    private String ip3src = imagesName + "3" + ipExt;
+    private String ip4src = imagesName + "4" + ipExt;
+    private String opBsrc = imagesName + "B" + opExt;
+    private String opTsrc = imagesName + "T" + opExt;
     private String opBTsrc = imagesName + "BT.png";
     private boolean saveOnOneImage = false;
 
@@ -53,9 +53,9 @@ public class Rotate extends Base {
     private void doAll() throws IOException {
         setup();
         initImages();
-        bottoms = Bottom.createAllFilledBottoms();
-        tops = Top.createAllFilledTops(bottoms);
-        System.out.println("bottoms:" + bottoms.size() + " tops:" + tops.size());
+//        bottoms = Bottom.createAllFilledBottoms();
+//        tops = Top.createAllFilledTops(bottoms);
+        //System.out.println("bottoms:" + bottoms.size() + " tops:" + tops.size());
         int x = (ww / 2) - 1;
         int y = (hh / 2) - 1;
 
@@ -77,31 +77,11 @@ public class Rotate extends Base {
             }
         }
 
-        //5,6,7,(5)
-//        printAllCorners(x - 1, y - 1, 3, 0, 3, 3, 0, 3);
-//        printAllCorners(x, y - 1, 2, 1, 1, 3, -1, 2);
-//        printAllCorners(x + 1, y - 1, 1, 2, -1, 3, -2, 1);
-
-        //8,9,10,11,12,(8)
-//        printAllCorners(x - 2, y - 2, 5, 0, 5, 5, 0, 5);
-//        printAllCorners(x - 1, y - 2, 4, 1, 3, 5, -1, 4);
-//        printAllCorners(   x,     y - 2, 3, 2, 1, 5, -2, 3);
-//        printAllCorners(x + 1, y - 2, 2, 3, -1, 5, -3, 2);
-//        printAllCorners(x + 2, y - 2, 1, 4, -3, 5, -4, 1);
-
-        //8,9,10,11,12,(8)
-//        printAllCorners(x - 3, y - 3, 7, 0, 7, 7, 0, 7);
-//        printAllCorners(x - 2, y - 3, 6, 1, 5, 7, -1, 6);
-//        printAllCorners(x - 1, y - 3, 5, 2, 3, 7, -2, 5);
-//        printAllCorners(x - 0, y - 3, 4, 3, 1, 7, -3, 4);
-//        printAllCorners(x + 1, y - 3, 3, 4, -1, 7, -4, 3);
-//        printAllCorners(x + 2, y - 3, 2, 5, -3, 7, -5, 2);
-//        printAllCorners(x + 3, y - 3, 1, 6, -5, 7, -6, 1);
-
         saveImages();
     }
 
     private void printAllCorners(int x, int y, int w1, int h1, int w2, int h2, int w3, int h3) {
+        //opGT.setColor(new Color((float)Math.random(),(float) Math.random(), (float)Math.random()));
         int x1 = x;
         int y1 = y;
 
@@ -114,136 +94,77 @@ public class Rotate extends Base {
         int x4 = x + w3;
         int y4 = y + h3;
 
-
-        ArrayList<Top> finalTops = new ArrayList();
-        ArrayList<Bottom> finalBots = new ArrayList();
-
-        finalTops = new ArrayList();
-        finalBots = new ArrayList();
-
-        Corner[][] corners = getCorners(x1, y1, x2, y2, x3, y3, x4, y4);
-        System.out.println("corners found:" + x1 + ":" + y1);
-
-        for (int j = 0; j < 4; j++) {
-
-            int k = (j + 3) % 4;
-            int l = (j + 2) % 4;
-            int m = (j + 1) % 4;
-            Corner cornA = corners[0][j];
-            Corner cornB = corners[1][k];
-            Corner cornC = corners[2][l];
-            Corner cornD = corners[3][m];
-            filterMathingTopBotsToCornerA(cornA, cornB, cornC, cornD);
-
-            HashMap<Top, ArrayList<Bottom>> top2BotsForA = corners[0][j].top2Bots;
-            Iterator<Top> it = top2BotsForA.keySet().iterator();
-            if (top2BotsForA.isEmpty()) {
-                System.out.println("none found");
-            }
-            boolean tryAgain = true;
-            int i = 0;
-            while (tryAgain) {
-                //Top topA = getRandom(it);
-                Top topA = it.next();
-                ArrayList<Bottom> allBots = getBottoms(top2BotsForA, topA);
-                Bottom botA = allBots.get(allBots.size() - 1);
-                finalTops.add(topA);
-                finalBots.add(botA);
-                tryAgain = false;
-            }
-        }
-
-        setPixels(opGT, finalTops.get(0), x1, y1);
-        setPixels(opGB, finalBots.get(0), x1, y1);
-        setPixels(opGT, finalTops.get(1), x2, y2);
-        setPixels(opGB, finalBots.get(1), x2, y2);
-        setPixels(opGT, finalTops.get(2), x3, y3);
-        setPixels(opGB, finalBots.get(2), x3, y3);
-        setPixels(opGT, finalTops.get(3), x4, y4);
-        setPixels(opGB, finalBots.get(3), x4, y4);
-
-    }
-
-    private void filterMathingTopBotsToCornerA(Corner cornerA, Corner cornerB, Corner cornerC, Corner cornerD) {
-
-        cornerA.filterMatchingTopBots(cornerB, 90, -1);
-        cornerA.filterMatchingTopBots(cornerC, 180, -2);
-        cornerA.filterMatchingTopBots(cornerD, 270, -3);
-    }
-
-    private ArrayList<Bottom> getBottoms(HashMap<Top, ArrayList<Bottom>> top2BotsForA, Top topA) {
-        return top2BotsForA.get(topA);
-    }
-
-    private Top getRandom(Iterator<Top> it) {
-        ArrayList<Top> allTops = new ArrayList<>();
-        while (it.hasNext()) {
-            allTops.add(it.next());
-        }
-
-        int i = (int) (Math.random() * allTops.size());
-        return allTops.get(i);
-    }
-
-    private Corner[][] getCorners(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
         Boolean[] blacksNeededA = getBlacks(ipImage1, x1, y1, x2, y2, x3, y3, x4, y4);
         Boolean[] blacksNeededB = getBlacks(ipImage2, x1, y1, x2, y2, x3, y3, x4, y4);
         Boolean[] blacksNeededC = getBlacks(ipImage3, x1, y1, x2, y2, x3, y3, x4, y4);
         Boolean[] blacksNeededD = getBlacks(ipImage4, x1, y1, x2, y2, x3, y3, x4, y4);
 
-        Corner[][] corners = getCornersFromBlacks(blacksNeededA, blacksNeededB, blacksNeededC, blacksNeededD);
-        return corners;
+        int rnd = (int) (Math.random() * pixelWidth * pixelWidth);
+        ArrayList<Top> finalTops = getAllTops(rnd);
+        ArrayList<Bottom> finalBots = getAllBottoms(rnd, blacksNeededA, blacksNeededB, blacksNeededC, blacksNeededD);
+
+        setPixels(opGT, finalTops.get(0), x1, y1);
+        setPixels(opGT, finalTops.get(1), x2, y2);
+        setPixels(opGT, finalTops.get(2), x3, y3);
+        setPixels(opGT, finalTops.get(3), x4, y4);
+
+        setPixels(opGB, finalBots.get(0), x1, y1);
+        setPixels(opGB, finalBots.get(1), x2, y2);
+        setPixels(opGB, finalBots.get(2), x3, y3);
+        setPixels(opGB, finalBots.get(3), x4, y4);
+
+        System.out.println("printed x,y: " + x + "," + y);
     }
 
-    private Corner[][] getCornersFromBlacks(Boolean[] blacksNeededA, Boolean[] blacksNeededB, Boolean[] blacksNeededC, Boolean[] blacksNeededD) {
-        Corner[] cornersA = initNewCorners();
-        Corner[] cornersB = initNewCorners();
-        Corner[] cornersC = initNewCorners();
-        Corner[] cornersD = initNewCorners();
+    private ArrayList<Bottom> getAllBottoms(int rnd, Boolean[] blacksNeededA, Boolean[] blacksNeededB, Boolean[] blacksNeededC, Boolean[] blacksNeededD) {
+        ArrayList<Bottom> bots = new ArrayList();
 
+        boolean[] blacks0 = {blacksNeededA[0], blacksNeededB[0], blacksNeededC[0], blacksNeededD[0]};
+        boolean[] blacks1 = {blacksNeededA[1], blacksNeededB[1], blacksNeededC[1], blacksNeededD[1]};
+        boolean[] blacks2 = {blacksNeededA[2], blacksNeededB[2], blacksNeededC[2], blacksNeededD[2]};
+        boolean[] blacks3 = {blacksNeededA[3], blacksNeededB[3], blacksNeededC[3], blacksNeededD[3]};
+        bots.add(getBottom(rnd, blacks0));
+        bots.add(getBottom(rnd, blacks1));
+        bots.add(getBottom(rnd, blacks2));
+        bots.add(getBottom(rnd, blacks3));
 
-        for (Top top : tops) {
-            int b = 0;
-            for (Bottom bot : bottoms) {
-                matchTopBots(blacksNeededA, cornersA, top, bot, b, 0);
-                matchTopBots(blacksNeededB, cornersB, top, bot, b, -90);
-                matchTopBots(blacksNeededC, cornersC, top, bot, b, -180);
-                matchTopBots(blacksNeededD, cornersD, top, bot, b,-270);
-                b++;
-            }
-        }
-        Corner[][] corners = {cornersA, cornersB, cornersC, cornersD};
-
-        return corners;
+        return bots;
     }
 
-    private void matchTopBots(Boolean[] blacksNeeded, Corner[] corners, Top top,
-                              Bottom bot, int b, double rot) {
+    private Bottom getBottom(int rnd, boolean[] blacksNeeded) {
 
-        ArrayList<Bottom> matchedBots0 = new ArrayList<>();
-        ArrayList<Bottom> matchedBots1 = new ArrayList<>();
-        ArrayList<Bottom> matchedBots2 = new ArrayList<>();
-        ArrayList<Bottom> matchedBots3 = new ArrayList<>();
+        int i0 = (0 + rnd) % 4;
+        int i1 = (1 + rnd) % 4;
+        int i2 = (2 + rnd) % 4;
+        int i3 = (3 + rnd) % 4;
 
-        matchTopBots(blacksNeeded[0], corners[0], top, matchedBots0, b, bot, rot);
-        matchTopBots(blacksNeeded[1], corners[1], top, matchedBots1, b, bot, rot);
-        matchTopBots(blacksNeeded[2], corners[2], top, matchedBots2, b, bot, rot);
-        matchTopBots(blacksNeeded[3], corners[3], top, matchedBots3, b, bot, rot);
+        String val = blacksNeeded[0] ? "1" : "0";
+        val = val + (blacksNeeded[1] ? "1" : "0");
+        val = val + (blacksNeeded[3] ? "1" : "0");
+        val = val + (blacksNeeded[2] ? "1" : "0");
+
+        Top top = new Top(val);
+        double ang = (rnd * 90);
+        top = top.rotate2(ang);
+
+        return new Bottom(top.value);
     }
 
-    private Corner[] initNewCorners() {
-        HashMap<Top, ArrayList<Bottom>> topBotsA0 = new HashMap<>();
-        Corner cornerA0 = new Corner(topBotsA0);
-        HashMap<Top, ArrayList<Bottom>> topBotsA1 = new HashMap<>();
-        Corner cornerA1 = new Corner(topBotsA1);
-        HashMap<Top, ArrayList<Bottom>> topBotsA2 = new HashMap<>();
-        Corner cornerA2 = new Corner(topBotsA2);
-        HashMap<Top, ArrayList<Bottom>> topBotsA3 = new HashMap<>();
-        Corner cornerA3 = new Corner(topBotsA3);
+    private ArrayList<Top> getAllTops(int rnd) {
+        ArrayList<Top> all = new ArrayList();
+        String[] vals = {"1", "1", "1", "1"};
+        vals[rnd] = "0";
+        String val = vals[0] + vals[1] + vals[3] + vals[2];
+        Top top0 = new Top(val);
+        Top top1 = top0.rotate2(0);
+        Top top2 = top0.rotate2(0);
+        Top top3 = top0.rotate2(0);
+        all.add(top0);
+        all.add(top1);
+        all.add(top3);
+        all.add(top2);
 
-        Corner[] corners = {cornerA0, cornerA1, cornerA2, cornerA3};
-
-        return corners;
+        return all;
     }
 
     private Boolean[] getBlacks(BufferedImage image, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
@@ -255,21 +176,15 @@ public class Rotate extends Base {
         return blacksNeeded;
     }
 
-    private void matchTopBots(Boolean val, Corner corner, Top top, ArrayList<Bottom> matchedBots, int b, Bottom bot, double rot) {
-        //boolean match = top.blacks.get(b).equals(val);
-        boolean match = top.isMatchWithBottomBlackOrWhite(bot, val);
-        if (match) {
-            if (getBottoms(corner.top2Bots, top) == null) {
-                corner.top2Bots.put(top, matchedBots);
-            }
-            matchedBots.add(bot);
-        }
-    }
-
-
     private void setPixels(Graphics2D opGT, Pixel pixel, int x, int y) {
         boolean[] tt = pixel.getValueAsBooleans();
         float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y) + getGrey(ipImage4, x, y)) / 4.0);
+
+        Color col1 = new Color(ipImage1.getRGB(x, y));
+        Color col2 = new Color(ipImage2.getRGB(x, y));
+        Color col3 = new Color(ipImage3.getRGB(x, y));
+        Color col4 = new Color(ipImage4.getRGB(x, y));
+
         fill(opGT, tt, pixelWidth * x, pixelWidth * y, 0);
     }
 

@@ -12,6 +12,11 @@ public class Top extends Pixel {
         initBlacks(bottoms);
     }
 
+    Top(String value) {
+        super();
+        this.value = value;
+    }
+
     static ArrayList<Top> createAllFilledTops(ArrayList<Bottom> bottoms) {
         String numBits = "%" + Pixel.NUM_PIXELS + "s";
         ArrayList<Top> tops = new ArrayList<>();
@@ -62,24 +67,23 @@ public class Top extends Pixel {
         return rotVal.equals(otherTop.value);
     }
 
-//    Top rotate3(double rot) {
-//        String[] vals = getValueAsStrings();
-//        if (rot%360 == 0) {
-//            return new Top(this.value, null);
-//        } else if (rot%360 == 90) {
-//            String[] vals2 = {vals[6], vals[3], vals[0], vals[7], vals[4], vals[1], vals[8], vals[5], vals[2]};
-//            String rotVal = String.join("", vals2);
-//            return new Top(rotVal);
-//        } else if (rot%360 == 180) {
-//            String[] vals2 = {vals[8], vals[7], vals[6], vals[5], vals[4], vals[3], vals[2], vals[1], vals[0]};
-//            String rotVal = String.join("", vals2);
-//            return new Top(rotVal);
-//        } else {
-//            String[] vals2 = {vals[2], vals[5], vals[8], vals[1], vals[4], vals[7], vals[0], vals[3], vals[6]};
-//            String rotVal = String.join("", vals2);
-//            return new Top(rotVal);
-//        }
-//    }
+    Top rotate2(double rot) {
+        String[] vals = getValueAsStrings();
+        String rotVal = this.value;
+        if (rot%360 == 0) {
+
+        } else if (rot%360 == 90) {
+            String[] vals2 = {vals[2], vals[0], vals[3], vals[1]};
+            rotVal = String.join("", vals2);
+        } else if (rot%360 == 180) {
+            String[] vals2 = {vals[3], vals[2], vals[1], vals[0]};
+            rotVal = String.join("", vals2);
+        } else {
+            String[] vals2 = {vals[1], vals[3], vals[0], vals[1]};
+            rotVal = String.join("", vals2);
+        }
+        return new Top(rotVal);
+    }
 
     private void initBlacks(ArrayList<Bottom> bottoms) {
         for (Bottom bot : bottoms) {
