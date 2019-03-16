@@ -1,5 +1,6 @@
 package com.op.moire.rotate;
 
+import java.awt.*;
 import java.util.Arrays;
 
 public class Pixel {
@@ -13,6 +14,7 @@ public class Pixel {
     static final int NUM_BLACKS_BOTTOM = NUMS[3];
 
     String value;
+    Color[] cols = {null, null, null, null};
 
     String[] getValueAsStrings() {
         String[] b = new String[NUM_PIXELS];

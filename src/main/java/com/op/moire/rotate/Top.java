@@ -1,5 +1,6 @@
 package com.op.moire.rotate;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Top extends Pixel {
@@ -12,9 +13,10 @@ public class Top extends Pixel {
         initBlacks(bottoms);
     }
 
-    Top(String value) {
+    Top(String value, Color[] cols) {
         super();
         this.value = value;
+        this.cols = cols;
     }
 
     static ArrayList<Top> createAllFilledTops(ArrayList<Bottom> bottoms) {
@@ -67,7 +69,7 @@ public class Top extends Pixel {
         return rotVal.equals(otherTop.value);
     }
 
-    Top rotate2(double rot) {
+    Top rotate2(int rot) {
         String[] vals = getValueAsStrings();
         String rotVal = this.value;
         if (rot%360 == 0) {
@@ -79,10 +81,10 @@ public class Top extends Pixel {
             String[] vals2 = {vals[3], vals[2], vals[1], vals[0]};
             rotVal = String.join("", vals2);
         } else {
-            String[] vals2 = {vals[1], vals[3], vals[0], vals[1]};
+            String[] vals2 = {vals[1], vals[3], vals[0], vals[2]};
             rotVal = String.join("", vals2);
         }
-        return new Top(rotVal);
+        return new Top(rotVal, this.cols);
     }
 
     private void initBlacks(ArrayList<Bottom> bottoms) {
