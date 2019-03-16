@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class Rotate extends Base {
     private static final Rotate fourRotate = new Rotate();
-    private String imagesDir = "sanVir2";
+    private String imagesDir = "sanVir3";
     private String imagesName = "sv";
     private String dir = hostDir + "fourRotate/" + imagesDir + "/";
     private String ipExt = ".jpg";
@@ -28,13 +28,16 @@ public class Rotate extends Base {
     private Color[] mainCol = {Color.BLACK, Color.BLUE, Color.RED.darker(), Color.GREEN.darker()};
     private Color[] bgCol = {Color.WHITE, Color.CYAN, Color.MAGENTA.brighter().brighter(), Color.YELLOW.brighter()};
 
-    double dpi = 56.44;
-    int ww = -1;
-    int hh = -1;
-    int www = -1;
-    int hhh = -1;
+    int ipw = -1;
+    int iph = -1;
+    int opw = -1;
+    int oph = -1;
     int border = -1;
-    int pixelWidth = -1;
+
+    int opFactor = 20;
+    int ipStep = 1;
+    int opStep = opFactor/(ipStep*2);
+    double dpi = 254;
 
     BufferedImage ipImage1;
     BufferedImage ipImage2;
@@ -54,25 +57,25 @@ public class Rotate extends Base {
     }
 
     private void doAll() throws IOException {
-        setup();
         initImages();
 //        bottoms = Bottom.createAllFilledBottoms();
 //        tops = Top.createAllFilledTops(bottoms);
         //System.out.println("bottoms:" + bottoms.size() + " tops:" + tops.size());
-        int x = (ww / 2) - 1;
-        int y = (hh / 2) - 1;
+        int x = (ipw / 2) - 1;
+        int y = (iph / 2) - 1;
 
         //1,2,3,4
         printAllCorners(x, y, 1, 0, 1, 1, 0, 1);
 
-        for (int j = 3; j < ww; j = j + 2) {
-            int mid = (int) (j / 2);
-            for (int i = 0; i < j; i++) {
+        int step = ipStep * 2;
+        for (int j = step + ipStep; j < ipw; j = j + step) {
+            int mid = (int) (j / step);
+            for (int i = 0; i < j; i = i + ipStep) {
                 int x1 = x + i - mid;
                 int y1 = y - mid;
                 int w1 = j - i;
                 int h1 = i;
-                int w2 = j - (2 * i);
+                int w2 = j - (step * i);
                 int h2 = j;
                 int w3 = -i;
                 int h3 = j - i;
@@ -98,7 +101,7 @@ public class Rotate extends Base {
         int y4 = y + h3;
 
 
-        int rnd = (int) (Math.random() * pixelWidth * pixelWidth);
+        int rnd = (int) (Math.random() * 4);
         //rnd = 0;
         //System.out.println("rnd="+rnd);
         ArrayList<Top> finalTops = getAllTops(rnd);
@@ -114,28 +117,7 @@ public class Rotate extends Base {
         setBottomPixels(opGB, finalBots.get(2), x3, y3, rnd);
         setBottomPixels(opGB, finalBots.get(3), x4, y4, rnd);
 
-        System.out.println("printed x,y: " + x + "," + y);
-    }
-
-    private void setPixels(Graphics2D opGT, Pixel pixel, int x, int y) {
-        boolean[] tt = pixel.getValueAsBooleans();
-        float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y) + getGrey(ipImage4, x, y)) / 4.0);
-
-        fill(opGT, tt, pixelWidth * x, pixelWidth * y, 0);
-    }
-
-    private void fill(Graphics2D opG, boolean[] tb, int xOff, int yOff, float greyValue) {
-        int c = 0;
-
-        for (int y = 0; y < pixelWidth; y++) {
-            for (int x = 0; x < pixelWidth; x++) {
-                if (tb[c]) {
-                    opG.setColor(mainCol[0]);
-                    opG.fillRect(xOff + x, yOff + y, 1, 1);
-                }
-                c++;
-            }
-        }
+        System.out.println("printed x,y: " + x1 + "," + y1 +":"+ x2 + "," + y2 +":"+ x3 + "," + y3 +":"+ x4 + "," + y4 +":");
     }
 
     private ArrayList<Bottom> getAllBottoms(int rnd, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
@@ -232,6 +214,7 @@ public class Rotate extends Base {
     }
 
     private double getGrey(BufferedImage image, int x, int y) {
+        System.out.println("x,y:"+x+","+y);
         Color col = new Color(image.getRGB(x, y));
         return (col.getRed() + col.getGreen() + col.getBlue()) / (255.0 * 3.0);
     }
@@ -254,43 +237,40 @@ public class Rotate extends Base {
         ipImage2 = ImageIO.read(new File(dir + ip2src));
         ipImage3 = ImageIO.read(new File(dir + ip3src));
         ipImage4 = ImageIO.read(new File(dir + ip4src));
-        ww = ipImage1.getWidth();
-        hh = ipImage1.getHeight();
-        www = ww * pixelWidth;
-        hhh = hh * pixelWidth;
+        ipw = ipImage1.getWidth();
+        iph = ipImage1.getHeight();
+        opw = ipw * opFactor;
+        oph = iph * opFactor;
 
-        border = (int) ((double) (www) * 0.05);
+        border = (int) ((double) (opw) * 0.05);
         border = 0;
 
-        double tot = www + 2 * border;
+        double tot = opw + 2 * border;
+
 
         System.out.println("Creating...");
-        opImageB = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
+        opImageB = createAlphaBufferedImage(opw + 2 * border, oph + 2 * border);
         opGB = (Graphics2D) opImageB.getGraphics();
         opGB.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
         opGB.setColor(Color.WHITE);
-        opGB.fillRect(0, 0, www, hhh);
+        opGB.fillRect(0, 0, opw, oph);
         opGB.setColor(Color.BLACK);
 
-        opImageT = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
+        opImageT = createAlphaBufferedImage(opw + 2 * border, oph + 2 * border);
         opGT = (Graphics2D) opImageT.getGraphics();
         opGT.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
         opGT.setColor(Color.BLACK);
     }
 
-    private void setup() {
-        pixelWidth = (int) Math.sqrt(Pixel.NUM_PIXELS);
-    }
-
     private void saveAsOneImage() {
-        BufferedImage opImageC = createAlphaBufferedImage(1 + 2 * (www + 2 * border), hhh + 2 * border);
+        BufferedImage opImageC = createAlphaBufferedImage(1 + 2 * (opw + 2 * border), oph + 2 * border);
         Graphics2D opG = (Graphics2D) (opImageC.getGraphics());
         opG.drawImage(opImageB, null, null);
         opG.setColor(Color.RED);
-        opG.fillRect((www + 2 * border), 0, 1, hhh + 2 * border);
-        opG.drawImage(opImageT, AffineTransform.getTranslateInstance(1 + www + 2 * border, 0), null);
+        opG.fillRect((opw + 2 * border), 0, 1, oph + 2 * border);
+        opG.drawImage(opImageT, AffineTransform.getTranslateInstance(1 + opw + 2 * border, 0), null);
 
         savePNGFile(opImageC, dir + opBTsrc, dpi);
     }
@@ -318,8 +298,8 @@ public class Rotate extends Base {
     }
 
     private void setBottomPixels(Graphics2D opG, Bottom bottom, int x1, int y1, int rnd) {
-        int xOff = pixelWidth * x1;
-        int yOff = pixelWidth * y1;
+        int xOff = opFactor * x1;
+        int yOff = opFactor * y1;
 
         boolean[] vals = bottom.getValueAsBooleans();
 
@@ -348,39 +328,39 @@ public class Rotate extends Base {
         }
 
         fillBotPixel(opG, xOff + 0, yOff + 0, vals[0], mainCol[is[0]], bgCol[is[0]]);
-        fillBotPixel(opG, xOff + 1, yOff + 0, vals[1], mainCol[is[1]], bgCol[is[1]]);
-        fillBotPixel(opG, xOff + 1, yOff + 1, vals[3], mainCol[is[3]], bgCol[is[3]]);
-        fillBotPixel(opG, xOff + 0, yOff + 1, vals[2], mainCol[is[2]], bgCol[is[2]]);
+        fillBotPixel(opG, xOff + opStep, yOff + 0, vals[1], mainCol[is[1]], bgCol[is[1]]);
+        fillBotPixel(opG, xOff + opStep, yOff + opStep, vals[3], mainCol[is[3]], bgCol[is[3]]);
+        fillBotPixel(opG, xOff + 0, yOff + opStep, vals[2], mainCol[is[2]], bgCol[is[2]]);
     }
 
     private void fillBotPixel(Graphics2D opG, int x, int y, boolean val, Color main, Color bg) {
         if (val) {
             opG.setColor(main);
-            opG.fillRect(x, y, 1, 1);
+            opG.fillRect(x, y, opStep, opStep);
         } else {
             opG.setColor(bg);
-            opG.fillRect(x, y, 1, 1);
+            opG.fillRect(x, y, opStep, opStep);
         }
     }
 
     private void setTopPixels(Graphics2D opGT, Top top, int x1, int y1, int rnd) {
         Color[] colst = {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
-        fillTop(opGT, top.getValueAsBooleans(), pixelWidth * x1, pixelWidth * y1, rnd, colst[0]);
+        fillTop(opGT, top.getValueAsBooleans(), opFactor * x1, opFactor * y1, rnd, colst[0]);
     }
 
     private void fillTop(Graphics2D opG, boolean[] tb, int xOff, int yOff, int rnd, Color col) {
         int c = 0;
 
         fillTopPixel(opG, xOff + 0, yOff + 0, tb[0]);
-        fillTopPixel(opG, xOff + 1, yOff + 0, tb[1]);
-        fillTopPixel(opG, xOff + 1, yOff + 1, tb[3]);
-        fillTopPixel(opG, xOff + 0, yOff + 1, tb[2]);
+        fillTopPixel(opG, xOff + opStep, yOff + 0, tb[1]);
+        fillTopPixel(opG, xOff + opStep, yOff + opStep, tb[3]);
+        fillTopPixel(opG, xOff + 0, yOff + opStep, tb[2]);
     }
 
     private void fillTopPixel(Graphics2D opG, int x, int y, boolean b) {
         if (b) {
             opG.setColor(Color.BLACK);
-            opG.fillRect(x, y, 1, 1);
+            opG.fillRect(x, y, opStep, opStep);
         }
     }
 }

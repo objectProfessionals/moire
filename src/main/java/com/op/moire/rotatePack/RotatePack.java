@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 public class RotatePack extends Base {
     private static final RotatePack fourRotate = new RotatePack();
-    private String imagesDir = "sw";
-    private String imagesName = "sw";
+    private String imagesDir = "ilu";
+    private String imagesName = "ilu";
     private String dir = hostDir + "rotatePack/" + imagesDir + "/";
     private String ipExt = ".jpg";
     private String opExt = ".png";
@@ -25,6 +25,7 @@ public class RotatePack extends Base {
     private String opTsrc = imagesName + "T" + opExt;
     private String opBTsrc = imagesName + "BT.png";
     private boolean saveOnOneImage = false;
+    private boolean drawCircle = false;
 
     double dpi = -1;
     int ipw = -1;
@@ -43,11 +44,11 @@ public class RotatePack extends Base {
     Graphics2D opGB;
     Graphics2D opGT;
     double angInc = 5;
-    int maxCircles = 4000;
-    double absMinR = 2; // need 2mm dia
-    double minR = 15;
-    double maxR = 20;
-    private int maxTryCount = 10000;
+    int maxCircles = 1000;
+    double absMinR = 5; // need 2mm dia
+    double minR = 49;
+    double maxR = 50;
+    private int maxTryCount = 1000;
     double spacer = 1;
     double bwThresh = 0.5;
     //private Color[] mainCol = {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
@@ -85,13 +86,14 @@ public class RotatePack extends Base {
 
         System.out.println("%=" + percentageCoverage);
 
-
-        opGB.setStroke(new BasicStroke(circleBorder));
-        opGB.setColor(Color.RED);
-        opGB.drawOval(0, 0, opw, oph);
-        opGT.setStroke(new BasicStroke(circleBorder));
-        opGT.setColor(Color.RED);
-        opGT.drawOval(0, 0, opw, oph);
+        if (drawCircle) {
+            opGB.setStroke(new BasicStroke(circleBorder));
+            opGB.setColor(Color.RED);
+            opGB.drawOval(0, 0, opw, oph);
+            opGT.setStroke(new BasicStroke(circleBorder));
+            opGT.setColor(Color.RED);
+            opGT.drawOval(0, 0, opw, oph);
+        }
     }
 
     private void setUpBottom() {
@@ -134,7 +136,7 @@ public class RotatePack extends Base {
         int startAng = (int) circle.startAng;
         int i = 0;
         for (boolean black : blacks) {
-            int ang = ((i * 90) + startAng - 90) % 360;
+            int ang = (-(i * 90) + startAng - 90) % 360;
             Color main = mainCol[i];
             Color bg = bgCol[i];
             if (black) {
@@ -170,7 +172,6 @@ public class RotatePack extends Base {
         double cx = circle.cx;
         double cy = circle.cy;
         double r = circle.r;
-        double startAng = circle.startAng;
 
         double rads = Math.toRadians(ang);
         double x1 = cx - ((double) (opw / 2));
@@ -288,7 +289,6 @@ public class RotatePack extends Base {
     private Circle setupTopCircle(int i) {
         Circle circle = null;
         int tryCount = 0;
-        //maxTryCount = opw * oph;
         boolean hasGroundOnlyColor;
         double maximumR = maxR - minR;
         double r = (minR + Math.random() * maximumR);
@@ -335,10 +335,13 @@ public class RotatePack extends Base {
             circleList.add(circle);
         }
         if (tryCount > maxTryCount) {
+            maxR = Math.max(2, maxR - 1);
             minR = Math.max(2, minR - 1);
-            System.out.println("minR=" + minR);
+            System.out.println("minR,maxR:" + minR+","+maxR);
+            maxTryCount = maxTryCount * 11 /10;
             if (minR < absMinR) {
-                throw new RuntimeException("tooSmall minR=" + minR);
+                return null;
+                //throw new RuntimeException("tooSmall minR=" + minR);
             }
         }
 
@@ -378,7 +381,7 @@ public class RotatePack extends Base {
         opGB = (Graphics2D) opImageB.getGraphics();
         opGB.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
-        opGB.setColor(Color.DARK_GRAY);
+        opGB.setColor(Color.BLACK);
         opGB.fillRect(0, 0, opw, oph);
         opGB.setColor(Color.BLACK);
 
