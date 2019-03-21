@@ -9,12 +9,14 @@ class Circle {
     Color col = null;
     double startAng = 0;
     int dp = 0;
+    float grey = 0;
 
-    Circle(double x, double y, double r, double startAng) {
+    Circle(double x, double y, double r, double startAng, double g) {
         this.cx = x;
         this.cy = y;
         this.r = r;
         this.startAng = startAng;
+        grey = (float)g;
     }
 
     @Override

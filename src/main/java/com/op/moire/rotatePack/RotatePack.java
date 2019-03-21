@@ -5,15 +5,18 @@ import com.op.moire.Base;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class RotatePack extends Base {
     private static final RotatePack fourRotate = new RotatePack();
-    private String imagesDir = "ilu";
-    private String imagesName = "ilu";
+    private String imagesDir = "sanVir";
+    private String imagesName = "sv";
     private String dir = hostDir + "rotatePack/" + imagesDir + "/";
     private String ipExt = ".jpg";
     private String opExt = ".png";
@@ -24,6 +27,7 @@ public class RotatePack extends Base {
     private String opBsrc = imagesName + "B" + opExt;
     private String opTsrc = imagesName + "T" + opExt;
     private String opBTsrc = imagesName + "BT.png";
+    private String opB1234src = imagesName + "B1234" + ipExt;
     private boolean saveOnOneImage = false;
     private boolean drawCircle = false;
 
@@ -46,18 +50,26 @@ public class RotatePack extends Base {
     double angInc = 5;
     int maxCircles = 1000;
     double absMinR = 5; // need 2mm dia
-    double minR = 49;
-    double maxR = 50;
+    double minR = 39; //49;
+    double maxR = 40; //50;
     private int maxTryCount = 1000;
     double spacer = 1;
     double bwThresh = 0.5;
     //private Color[] mainCol = {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
-    private Color[] mainCol = {Color.BLACK, Color.BLUE, Color.RED, Color.GREEN};
-    private Color[] bgCol = {Color.WHITE, Color.CYAN.brighter(), Color.MAGENTA.brighter().brighter().brighter().brighter(), Color.YELLOW.brighter().brighter().brighter()};
+    private Color[] mainCol = {Color.BLACK,
+            Color.BLUE.darker(),
+            Color.RED,
+            Color.GREEN.darker()};
+    private Color[] bgCol = {Color.WHITE,
+            Color.CYAN.brighter().brighter().brighter(),
+            Color.PINK,
+            Color.YELLOW.brighter().brighter().brighter()};
 
     ArrayList<Circle> circleList = new ArrayList<>();
 
     float circleBorder = 5f;
+    long rndSeed = 25;
+    Random random = new Random(rndSeed);
 
 
     public static void main(String[] args) throws Exception {
@@ -141,10 +153,10 @@ public class RotatePack extends Base {
             Color bg = bgCol[i];
             if (black) {
                 opGB.setColor(main);
-                opGB.fillArc(x - r, y - r, r * 2, r * 2, ang, 90);
+                fillShape(opGB, x - r, y - r, r * 2, r * 2, ang, 90);
             } else {
                 opGB.setColor(bg);
-                opGB.fillArc(x - r, y - r, r * 2, r * 2, ang, 90);
+                fillShape(opGB, x - r, y - r, r * 2, r * 2, ang, 90);
             }
             i++;
         }
@@ -198,7 +210,23 @@ public class RotatePack extends Base {
 
     private boolean isBlack(BufferedImage image, int x, int y) {
         return getGrey(image, x, y) < bwThresh;
-        //return -1 != image.getRGB(x, y);
+    }
+
+    private double getGreyForAll(int x, int y) {
+        double grey = getGreys(x, y);
+
+        double min = 0.2;
+        double max = 0.3;
+        return (min + (grey * (max - min)));
+    }
+
+    private double getGreys(int x, int y) {
+        double g1 = getGrey(ipImage1, x, y);
+        double g2 = getGrey(ipImage2, x, y);
+        double g3 = getGrey(ipImage3, x, y);
+        double g4 = getGrey(ipImage4, x, y);
+
+        return (g1 + g2 + g3 + g4) / 4.0;
     }
 
     private double getGrey(BufferedImage image, int x, int y) {
@@ -214,8 +242,6 @@ public class RotatePack extends Base {
         for (int i = 1; i < maxCircles; i++) {
             Circle circle = setupTopCircle(i);
 
-            //initCircleCol(circle);
-
             if (circle != null) {
                 drawCircleTop(circle, 0);
                 drawCircleTop(circle, 90);
@@ -225,36 +251,10 @@ public class RotatePack extends Base {
         }
     }
 
-    private void initCircleCol(Circle circle) {
-        int[][] coords = getAllCoords(circle);
-        int x1 = coords[0][0];
-        int y1 = coords[0][1];
-        int x2 = coords[1][0];
-        int y2 = coords[1][1];
-        int x3 = coords[2][0];
-        int y3 = coords[2][1];
-        int x4 = coords[3][0];
-        int y4 = coords[3][1];
-
-        float avgGrey1 = (float) ((getGrey(ipImage1, x1, y1) + getGrey(ipImage2, x1, y1) + getGrey(ipImage3, x1, y1) + getGrey(ipImage4, x1, y1)) / 4.0);
-        float avgGrey2 = (float) ((getGrey(ipImage1, x2, y2) + getGrey(ipImage2, x2, y2) + getGrey(ipImage3, x2, y2) + getGrey(ipImage4, x2, y2)) / 4.0);
-        float avgGrey3 = (float) ((getGrey(ipImage1, x3, y3) + getGrey(ipImage2, x3, y3) + getGrey(ipImage3, x3, y3) + getGrey(ipImage4, x3, y3)) / 4.0);
-        float avgGrey4 = (float) ((getGrey(ipImage1, x4, y4) + getGrey(ipImage2, x4, y4) + getGrey(ipImage3, x4, y4) + getGrey(ipImage4, x4, y4)) / 4.0);
-
-        float avgGrey = (avgGrey1 + avgGrey2 + avgGrey3 + avgGrey4) / 4.0f;
-
-        if (avgGrey > 0.9) {
-            circle.col = new Color(0.9f, 0.9f, 0.9f);
-        } else if (avgGrey > 0.25) {
-            circle.col = new Color(avgGrey, avgGrey, avgGrey);
-        } else {
-            circle.col = Color.BLACK;
-        }
-    }
-
     private Circle setupCenterTopCircle(int i) {
-        double startAng = 360.0 * (Math.random());
-        Circle circle = new Circle(opw / 2, oph / 2, maxR, startAng);
+        double startAng = 360.0 * (getRandom());
+        double g = getGreyForAll(opw / 2, oph / 2);
+        Circle circle = new Circle(opw / 2, oph / 2, maxR, startAng, g);
         System.out.println("circleList=" + circleList.size());
         circleList.add(circle);
         return circle;
@@ -276,24 +276,44 @@ public class RotatePack extends Base {
         int xxx = (int) xx;
         int yyy = (int) yy;
         int rrr = (int) r;
-        //opGT.setColor(circle.col);
-        opGT.setColor(Color.BLACK);
-        opGT.fillArc(xxx - rrr, yyy - rrr, rrr * 2, rrr * 2, (int) (startAng), 270);
+        Color dark = new Color(circle.grey, circle.grey, circle.grey);
+        opGT.setColor(dark);
+        //opGT.setColor(Color.BLACK);
+        fillShape(opGT, xxx - rrr, yyy - rrr, rrr * 2, rrr * 2, (int) (startAng), 270);
 
 
-        Color colA = new Color(0, 0, 0, 10);
+        Color colA = new Color(dark.getRed(), dark.getGreen(), dark.getBlue(), 10);
         opGT.setColor(colA);
-        opGT.fillArc(xxx - rrr, yyy - rrr, rrr * 2, rrr * 2, (int) (startAng + 270), 90);
+        fillShape(opGT, xxx - rrr, yyy - rrr, rrr * 2, rrr * 2, (int) (startAng + 270), 90);
     }
+
+    private void fillShape(Graphics2D opG, int x, int y, int w, int h, int startAng, int arcAng) {
+        opG.fillArc(x, y, w, h, startAng, arcAng);
+    }
+
+    private void fillHeartShape(Graphics2D opG, int x, int y, int w, int h, int startAng, int arcAng) {
+        Ellipse2D all = new Ellipse2D.Double(x, y, w, h);
+        Area allArea = new Area(all);
+        //allArea.r
+        opG.fill(getShapeHeart(x, y, w, startAng, arcAng));
+    }
+
+    private Shape getShapeHeart(double x, double y, int rrr, int startAng, int arcAng) {
+        int size = 9 * rrr / 10;
+        int off = 1 * rrr / 10;
+        Shape heart = new HeartShape().getShape(size, off, (int) x, (int) y);
+        return heart;
+    }
+
 
     private Circle setupTopCircle(int i) {
         Circle circle = null;
         int tryCount = 0;
         boolean hasGroundOnlyColor;
         double maximumR = maxR - minR;
-        double r = (minR + Math.random() * maximumR);
-        double x = Math.random() * opw;
-        double y = Math.random() * oph;
+        double r = (minR + getRandom() * maximumR);
+        double x = getRandom() * opw;
+        double y = getRandom() * oph;
         double rr = r + spacer;
         hasGroundOnlyColor = hasOnlyGroundColor(x, y, rr);
 
@@ -303,49 +323,38 @@ public class RotatePack extends Base {
             rr--;
             hasGroundOnlyColor = hasOnlyGroundColor(x, y, rr);
             tryCount++;
-            //System.out.println("rr"+rr);
-            //if (!hasGroundOnlyColor && rr <= maxR && xs < opw && ys < oph) {
             if (!hasGroundOnlyColor && rr <= maxR) {
-                r = minR + Math.random() * maximumR;
-                x = Math.random() * opw;
-                y = Math.random() * oph;
-
-//                xs = xs + 1;
-//                if (xs >= oph) {
-//                    xs = 0;
-//                    ys = ys + 1;
-//                }
-//                x = xs;
-//                y = ys;
+                r = minR + getRandom() * maximumR;
+                x = getRandom() * opw;
+                y = getRandom() * oph;
 
                 rr = r + spacer;
                 hasGroundOnlyColor = hasOnlyGroundColor(x, y, rr);
-
-//                Circle c2 = new Circle(x,y,r, 0);
-//                if (!circleList.contains(c2)) {
-//                    //System.out.println("tryAgain");
-//                }
             }
         }
 
         if (hasGroundOnlyColor) {
-            double startAng = 360.0 * (Math.random());
-            circle = new Circle(x, y, r, startAng);
+            double startAng = 360.0 * (getRandom());
+            double g = getGreyForAll((int) x, (int) y);
+            circle = new Circle(x, y, r, startAng, g);
             System.out.println("circleList=" + circleList.size());
             circleList.add(circle);
         }
         if (tryCount > maxTryCount) {
             maxR = Math.max(2, maxR - 1);
             minR = Math.max(2, minR - 1);
-            System.out.println("minR,maxR:" + minR+","+maxR);
-            maxTryCount = maxTryCount * 11 /10;
+            System.out.println("minR,maxR:" + minR + "," + maxR);
+            maxTryCount = maxTryCount * 11 / 10;
             if (minR < absMinR) {
                 return null;
-                //throw new RuntimeException("tooSmall minR=" + minR);
             }
         }
 
         return circle;
+    }
+
+    private double getRandom() {
+        return random.nextDouble();
     }
 
     private void saveImages() {
