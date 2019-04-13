@@ -15,8 +15,8 @@ import java.util.Random;
 
 public class RotatePack extends Base {
     private static final RotatePack fourRotate = new RotatePack();
-    private String imagesDir = "sanVir";
-    private String imagesName = "sv";
+    private String imagesDir = "ilu";
+    private String imagesName = "ilu";
     private String dir = hostDir + "rotatePack/" + imagesDir + "/";
     private String ipExt = ".jpg";
     private String opExt = ".png";
@@ -38,6 +38,9 @@ public class RotatePack extends Base {
     int oph = -1;
     int border = -1;
     double pixelWidth = 20;
+    double wmm = 100;
+    double hmm = wmm;
+    double mm2in = 25.4;
 
     BufferedImage ipImage1;
     BufferedImage ipImage2;
@@ -55,15 +58,16 @@ public class RotatePack extends Base {
     private int maxTryCount = 1000;
     double spacer = 1;
     double bwThresh = 0.5;
-    //private Color[] mainCol = {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
-    private Color[] mainCol = {Color.BLACK,
-            Color.BLUE.darker(),
-            Color.RED,
-            Color.GREEN.darker()};
-    private Color[] bgCol = {Color.WHITE,
-            Color.CYAN.brighter().brighter().brighter(),
-            Color.PINK,
-            Color.YELLOW.brighter().brighter().brighter()};
+    private Color[] mainCol = {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
+    private Color[] bgCol = {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
+//    private Color[] mainCol = {Color.BLACK,
+//            Color.BLUE.darker(),
+//            Color.RED,
+//            Color.GREEN.darker()};
+//    private Color[] bgCol = {Color.WHITE,
+//            Color.CYAN.brighter().brighter().brighter(),
+//            Color.PINK,
+//            Color.YELLOW.brighter().brighter().brighter()};
 
     ArrayList<Circle> circleList = new ArrayList<>();
 
@@ -215,8 +219,8 @@ public class RotatePack extends Base {
     private double getGreyForAll(int x, int y) {
         double grey = getGreys(x, y);
 
-        double min = 0.2;
-        double max = 0.3;
+        double min = 0;
+        double max = 0.1;
         return (min + (grey * (max - min)));
     }
 
@@ -380,9 +384,6 @@ public class RotatePack extends Base {
         //border = (int) ((double) (opw) * 0.05);
         border = 0;
 
-        double wmm = 100;
-        double hmm = 100;
-        double mm2in = 25.4;
         dpi = opw / wmm * mm2in;
 
         System.out.println("Creating...");
@@ -431,12 +432,18 @@ public class RotatePack extends Base {
     }
 
     private void saveAsOneImage() {
-        BufferedImage opImageC = createAlphaBufferedImage(1 + 2 * (opw + 2 * border), oph + 2 * border);
+        double bf = 0.05;
+        border = (int)(((double)opw) * bf );
+        BufferedImage opImageC = createAlphaBufferedImage((2*opw + 3 * border), oph + 2 * border);
         Graphics2D opG = (Graphics2D) (opImageC.getGraphics());
-        opG.drawImage(opImageB, null, null);
+        opG.drawImage(opImageB, AffineTransform.getTranslateInstance(border, border), null);
+        opG.drawImage(opImageT, AffineTransform.getTranslateInstance(opw + 2 * border, border), null);
         opG.setColor(Color.RED);
-        opG.fillRect((opw + 2 * border), 0, 1, oph + 2 * border);
-        opG.drawImage(opImageT, AffineTransform.getTranslateInstance(1 + opw + 2 * border, 0), null);
+        float strmm = 0.25f;
+        float str = strmm *(float)(dpi/25.4); // 1mm
+        opG.setStroke(new BasicStroke(str));
+        opG.drawRect(border, border, opw, oph);
+        opG.drawRect(border+opw+border, border, opw, oph);
 
         savePNGFile(opImageC, dir + opBTsrc, dpi);
     }
