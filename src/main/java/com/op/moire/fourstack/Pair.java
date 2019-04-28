@@ -1,40 +1,108 @@
 package com.op.moire.fourstack;
 
-import static com.op.moire.fourstack.Stack.ALL;
-
 public class Pair {
-    Values values1;
-    Values values2;
 
-    Pair(Values values1, Values values2) {
-        this.values1 = values1;
-        this.values2 = values2;
+    String s1 = "";
+    String s2 = "";
+    String mer = "";
+
+    Pair(String s1, String s2) {
+        this.s1 = s1;
+        this.s2 = s2;
     }
 
     @Override
-    public boolean equals(Object object) {
-        Values val1 = this.values1;
-        Values val2 = this.values2;
-
-        Pair pair = (Pair) object;
-        Values val1b = pair.values1;
-        Values val2b = pair.values2;
-
-        return val1.value.equals(val1b.value) && val2.value.equals(val2b.value)
-                || val1.value.equals(val2b.value) && val2.value.equals(val1b.value);
+    public boolean equals(Object o) {
+        Pair p = (Pair) o;
+        return this.mer.equals(p.mer);
     }
 
-    String merged() {
-        String val = "";
-        for (int n = 0; n < ALL; n++) {
-            String bn = values1.value.substring(n, n + 1);
-            String tn = values2.value.substring(n, n + 1);
-            if ("1".equals(bn) || "1".equals(tn)) {
-                val = val + "1";
+    public String merged() {
+        String m = "";
+        for (int i = 0; i < s1.length(); i++) {
+            String c1 = s1.substring(i, i + 1);
+            String c2 = s2.substring(i, i + 1);
+            m = m + merge(c1, c2);
+        }
+
+        mer = m;
+        return m;
+    }
+    private String merge(String c1, String c2) {
+        if (isEither(c1, c2, "C", "C")) {
+            return "C";
+        }
+        if (isEither(c1, c2, "M", "M")) {
+            return "M";
+        }
+        if (isEither(c1, c2, "Y", "Y")) {
+            return "Y";
+        }
+        if (isEither(c1, c2, "C", "M")) {
+            return "B";
+        }
+        if (isEither(c1, c2, "C", "Y")) {
+            return "G";
+        }
+        if (isEither(c1, c2, "M", "Y")) {
+            return "R";
+        }
+        if (isEither(c1, c2, "0", "C")) {
+            return "C";
+        }
+        if (isEither(c1, c2, "0", "M")) {
+            return "M";
+        }
+        if (isEither(c1, c2, "0", "Y")) {
+            return "Y";
+        }
+        if (isEither(c1, c2, "0", "X")) {
+            return "X";
+        }
+        if (isEither(c1, c2, "C", "X")) {
+            return "X";
+        }
+        if (isEither(c1, c2, "M", "X")) {
+            return "X";
+        }
+        if (isEither(c1, c2, "Y", "X")) {
+            return "X";
+        }
+
+        return "0";
+    }
+
+    private boolean isEither(String s1, String s2, String c1, String c2) {
+        return (s1.equals(c1) && s2.equals(c2)) || (s1.equals(c2) && s2.equals(c1));
+    }
+
+    public boolean succesMerge(int off, int on, char co) {
+        String m = merged();
+        char[] chars = m.toCharArray();
+        int nOff = 0;
+        int nOn = 0;
+        for (char c : chars) {
+            if (c == co) {
+                nOn++;
             } else {
-                val = val + "0";
+                nOff++;
             }
         }
-        return val;
+        return (nOn == on && nOff >= off);
+    }
+
+    public boolean succesMerge(int on, char co) {
+        String m = merged();
+        char[] chars = m.toCharArray();
+        int nOff = 0;
+        int nOn = 0;
+        for (char c : chars) {
+            if (c == co) {
+                nOn++;
+            } else {
+                nOff++;
+            }
+        }
+        return (nOn == on);
     }
 }
