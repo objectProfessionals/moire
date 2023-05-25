@@ -1,6 +1,7 @@
-package com.op.moire.fourstack;
+package com.op.moire.fourstack.multi;
 
 import com.op.moire.Base;
+import com.op.moire.fourstack.cmyk.CalculateCMYK;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,17 +12,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FourStackColor extends Base {
+public class FourStackMulti extends Base {
 
-    private static final FourStackColor fourStack = new FourStackColor();
-    private final CalculateColor calculate = new CalculateColor();
-    private String imagesDir = "test3";
+    private static final FourStackMulti fourStack = new FourStackMulti();
+    private final CalculateNum calculate = new CalculateNum();
+    private String imagesDir = "test4";
     private String imagesName = "test";
     private String dir = hostDir + "fourStack/" + imagesDir + "/";
     private String ipExt = ".png";
     private String opExt = ".png";
     private String opSuff = "_OUT";
-    private String printFile = imagesName+"_TXT.txt";
+    private String printFile = imagesName + "_TXT.txt";
     private String ip1src = imagesName + "1" + ipExt;
     private String ip2src = imagesName + "2" + ipExt;
     private String ip3src = imagesName + "3" + ipExt;
@@ -90,8 +91,8 @@ public class FourStackColor extends Base {
     }
 
     private void drawAll() {
-        String parms = calculate.all + ":" + calculate.off + ":" + calculate.on + ":" + calculate.off8 + ":" + calculate.on8 + ":" + calculate.offPair + ":" + calculate.onPair;
-        printWriter.println("parms=all:off:on:off8:on8:offPair:onPair" + parms);
+        String parms = calculate.getAllParms();
+        printWriter.println(parms);
         for (int y = 0; y < iph; y++) {
             for (int x = 0; x < ipw; x++) {
                 drawCell(x, y);
@@ -128,24 +129,27 @@ public class FourStackColor extends Base {
         if (result == null) {
             boolean[] blacks = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
             ArrayList<String[]> caclulated = calculate.calculate(blacks);
-            if (caclulated.isEmpty()) {
-                printWriter.close();
-            }
-            int rnd = (int) (Math.random() * caclulated.size());
-            result = caclulated.get(rnd);
+//            if (caclulated.isEmpty()) {
+//                printWriter.close();
+//            }
+//            int rnd = (int) (Math.random() * caclulated.size());
+//            result = caclulated.get(rnd);
+            result = caclulated.get(0);
+
             printWriter.println(bl + "," + result[0] + "," + result[1] + "," + result[2] + "," + result[3]);
             stored.put(bl, result);
         }
 
-        drawCellCircle(op1, x, y, result[0]);
-        drawCellCircle(op2, x, y, result[1]);
-        drawCellCircle(op4, x, y, result[2]);
-        drawCellCircle(op8, x, y, result[3]);
+        drawCell(op1, x, y, result[0]);
+        drawCell(op2, x, y, result[1]);
+        drawCell(op4, x, y, result[2]);
+        drawCell(op8, x, y, result[3]);
     }
 
     private void drawCell(Graphics2D op, int x, int y, String str) {
 
-        int dim = 3;
+        int dim = 5;
+        int d = opFactor/dim;
         char[] chars = str.toCharArray();
         int i = 0;
         for (int yy = 0; yy < dim; yy++) {
@@ -154,7 +158,7 @@ public class FourStackColor extends Base {
                     String colStr = Character.toString(chars[i]);
                     Color col = calculate.str2Col.get(colStr);
                     op.setColor(col);
-                    op.fillRect(x * opFactor + xx, y * opFactor + yy, 1, 1);
+                    op.fillRect(x * opFactor + xx*d, y * opFactor + yy*d, d, d);
                 }
                 i++;
             }
@@ -230,7 +234,7 @@ public class FourStackColor extends Base {
         op8.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        printWriter = new PrintWriter(dir+printFile);
+        printWriter = new PrintWriter(dir + printFile);
 
     }
 

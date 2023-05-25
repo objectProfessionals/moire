@@ -6,7 +6,15 @@ import java.util.HashMap;
 
 public class CalculateColor {
     static final CalculateColor calculate = new CalculateColor();
-    static int all = 5;
+    int all = 9;
+    int off = 2;
+    int on = 3;
+    int off8 = 2;
+    int on8 = 3;
+    int offPair = 1;
+    int onPair = 2;
+    int offTriple = 1;
+    int onTriple = 2;
     HashMap<String, Color> str2Col = new HashMap();
 
     public static void main(String[] args) {
@@ -16,9 +24,16 @@ public class CalculateColor {
     }
 
     private void test() {
-        //boolean[] blacks = {false,false,false,false,false,false,false,false,false,true,true,true,true,true,true};
+        boolean[] blacks = {false,false,false,false,false,false,false,false,false,true,true,true,true,true,true};
         //boolean[] blacks = {false, false, false, false, false, false, false, false, false, true, true, true, true, true, true};
-        boolean[] blacks = {false, true, true, true, false, false, true, true, true, true, false, true, true, true, false};
+        //boolean[] blacks = {false, true, true, true, false, false, true, true, true, true, false, true, true, true, false};
+        //boolean[] blacks = {false, true, true, false, true, false, true, true, true, true, false, true, true, false, true};
+        //boolean[] blacks = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+        //boolean[] blacks = {false, true, false, false, false, false, true, true, true, false, false, true, false, false, false};
+        //boolean[] blacks = {false,false,false,false,true,false,true,false,false,false,false,false,false,false,false};
+        //boolean[] blacks = {false, true, true, false, true, false, true, true, true, true, false, true, true, false, true};
+        //boolean[] blacks = {true,true,true,true,false,false,false,false,false,false,true,false,false,true,false};
+        //boolean[] blacks = {false,false,false,false,false,false,true,false,false,false,false,false,false,false,false};
         calculate(blacks);
     }
 
@@ -30,14 +45,11 @@ public class CalculateColor {
         }
         System.out.println();
 
-        int off = 2;
-        int on = 3;
-        int offX = 1;
-        int onX = 2;
         ArrayList<String> v1s = getCorrectStrings(blacks[0], "C", off, on);
         ArrayList<String> v2s = getCorrectStrings(blacks[1], "M", off, on);
         ArrayList<String> v4s = getCorrectStrings(blacks[3], "Y", off, on);
-        ArrayList<String> v8s = getAllCorrectStrings(blacks[7], "CMY", off, on);
+        ArrayList<String> v8s = getCorrectStrings(blacks[3], "X", off, on);
+        //ArrayList<String> v8s = getAllCorrectStrings(blacks[7], "CMY", off8, on8);
 
 //        printAllln(v1s);
 //        printAllln(v2s);
@@ -48,25 +60,14 @@ public class CalculateColor {
         ArrayList<String[]> filtered = getAll(v1s, v2s, v4s, v8s, blacks);
 
         System.out.println(filtered.size());
-        //printAll(filtered);
-
-//        int offA = 0;
-//        int onA = 1;
-//        ArrayList<Pair> v12s = merge(blacks[2], offA, onA, v1s, v2s, 'B');
-//        ArrayList<Pair> v14s = merge(blacks[4], offA, onA, v1s, v4s, 'G');
-//        ArrayList<Pair> v24s = merge(blacks[5], offA, onA, v2s, v4s, 'R');
-//
-//        printAllMerged(v12s);
-//        printAllMerged(v14s);
-//        printAllMerged(v24s);
 
         return filtered;
     }
 
     private void setup() {
-        str2Col.put("C", getAlpha(Color.CYAN));
-        str2Col.put("M", getAlpha(Color.MAGENTA));
-        str2Col.put("Y", getAlpha(Color.YELLOW));
+        str2Col.put("C", getAlpha(Color.BLACK));
+        str2Col.put("M", getAlpha(Color.BLACK));
+        str2Col.put("Y", getAlpha(Color.BLACK));
         str2Col.put("0", getAlpha(Color.WHITE));
 //        str2Col.put("R", Color.RED);
 //        str2Col.put("B", Color.BLUE);
@@ -81,16 +82,16 @@ public class CalculateColor {
     }
 
     private ArrayList<String[]> getAll(ArrayList<String> v1s, ArrayList<String> v2s, ArrayList<String> v4s, ArrayList<String> v8s, boolean[] blacks) {
-        int offPair = 1;
-        int onPair = 2;
-        int off8 = 0;
-        int on8 = 1;
         int num12 = blacks[2] ? onPair : offPair;
         int num24 = blacks[5] ? onPair : offPair;
         int num14 = blacks[4] ? onPair : offPair;
-        int num28 = blacks[9] ? on8 : off8;
-        int num18 = blacks[8] ? on8 : off8;
-        int num48 = blacks[11] ? on8 : off8;
+        int num28 = blacks[9] ? onPair : offPair;
+        int num18 = blacks[8] ? onPair : offPair;
+        int num48 = blacks[11] ? onPair : offPair;
+        int num124 = blacks[6] ? onTriple : offTriple;
+        int num128 = blacks[10] ? onTriple : offTriple;
+        int num248 = blacks[13] ? onTriple : offTriple;
+        int num148 = blacks[12] ? onTriple : offTriple;
 
 
         ArrayList<String[]> filtered = new ArrayList<>();
@@ -101,10 +102,18 @@ public class CalculateColor {
                     for (String v4 : v4s) {
                         if (hasCorrectPair(num24, v2, v4, 'R')) {
                             if (hasCorrectPair(num14, v1, v4, 'G')) {
-                                for (String v8 : v8s) {
-                                    if (hasAllCorrect(num18, num28, num48, v1, v2, v4, v8)) {
-                                        String[] arr = {v1, v2, v4, v8};
-                                        filtered.add(arr);
+                                if (hasCorrectTriple(num124, v1, v2, v4)) {
+                                    for (String v8 : v8s) {
+                                        if (hasCorrectTriple(num128, v1, v2, v8)) {
+                                            if (hasCorrectTriple(num248, v2, v4, v8)) {
+                                                if (hasCorrectTriple(num148, v1, v4, v8)) {
+                                                    //if (hasAllCorrectPairs(num18, num28, num48, v1, v2, v4, v8)) {
+                                                    String[] arr = {v1, v2, v4, v8};
+                                                    filtered.add(arr);
+                                                }
+                                            }
+
+                                        }
                                     }
 
                                 }
@@ -128,8 +137,9 @@ public class CalculateColor {
         return filtered;
     }
 
-    private boolean hasAllCorrect(int num18, int num28, int num48, String v1, String v2, String v4, String v8) {
+    private boolean hasAllCorrectPairs(int num18, int num28, int num48, String v1, String v2, String v4, String v8) {
         String[] arr = {"RGB", "RBG", "GRB", "GBR", "BRG", "BGR"};
+        String[] arr2 = {"R", "G", "B", "X"};
         for (String a : arr) {
             char a1 = a.charAt(0);
             char a2 = a.charAt(1);
@@ -149,6 +159,15 @@ public class CalculateColor {
     private boolean hasCorrectPair(int on, String v1, String v2, char co) {
         Pair pair = new Pair(v1, v2);
         return pair.succesMerge(on, co);
+    }
+
+    private boolean hasCorrectTriple(int on, String v1, String v2, String v3) {
+        Triple triple = new Triple(v1, v2, v3);
+        boolean sX = triple.succesMerge(on, 'X', 'B');
+        boolean sB = triple.succesMerge(on, 'B', 'R');
+        boolean sR = triple.succesMerge(on, 'R', 'G');
+        boolean sG = triple.succesMerge(on, 'G', 'B');
+        return sX || sB || sR || sG;
     }
 
     private ArrayList<String> getCorrectStrings(boolean black, String c, int off, int on) {
@@ -177,12 +196,21 @@ public class CalculateColor {
         for (String rep : allcombs) {
             for (String f : vs) {
                 String res1 = new String(f).replaceFirst("1", rep.substring(0, 1));
-                String res2 = res1.replaceFirst("1", rep.substring(1, 2));
-                if (vNum == 3) {
-                    String res3 = res2.replaceFirst("1", rep.substring(2, 3));
-                    fs.add(res3);
+                if (vNum >= 2) {
+                    String res2 = res1.replaceFirst("1", rep.substring(1, 2));
+                    if (vNum >= 3) {
+                        String res3 = res2.replaceFirst("1", rep.substring(2, 3));
+                        if (vNum == 4) {
+                            String res4 = res3.replaceFirst("1", rep.substring(3, 4));
+                            fs.add(res4);
+                        } else {
+                            fs.add(res3);
+                        }
+                    } else {
+                        fs.add(res2);
+                    }
                 } else {
-                    fs.add(res2);
+                    fs.add(res1);
                 }
             }
         }
@@ -194,23 +222,34 @@ public class CalculateColor {
         ArrayList<String> allCombs = new ArrayList<>();
         String[] arr = {"C", "M", "Y"};
         if (depth == 1) {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < arr.length; i++) {
                 String all = arr[i];
                 allCombs.add(all);
             }
         } else if (depth == 2) {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < arr.length; i++) {
+                for (int j = 0; j < arr.length; j++) {
                     String all = arr[i] + arr[j];
                     allCombs.add(all);
                 }
             }
         } else if (depth == 3) {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    for (int k = 0; k < 3; k++) {
+            for (int i = 0; i < arr.length; i++) {
+                for (int j = 0; j < arr.length; j++) {
+                    for (int k = 0; k < arr.length; k++) {
                         String all = arr[i] + arr[j] + arr[k];
                         allCombs.add(all);
+                    }
+                }
+            }
+        } else if (depth == 4) {
+            for (int h = 0; h < arr.length; h++) {
+                for (int i = 0; i < arr.length; i++) {
+                    for (int j = 0; j < arr.length; j++) {
+                        for (int k = 0; k < arr.length; k++) {
+                            String all = arr[h] + arr[i] + arr[j] + arr[k];
+                            allCombs.add(all);
+                        }
                     }
                 }
             }

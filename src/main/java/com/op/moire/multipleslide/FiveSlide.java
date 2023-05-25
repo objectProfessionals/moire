@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class FiveSlide extends Base {
-    private static final FiveSlide threeSlide = new FiveSlide();
-    private String imagesDir = "Virga2";
-    private String imagesName = "Virga";
+    private static final FiveSlide fiveSlide = new FiveSlide();
+    private String imagesDir = "fiveSlide";
+    private String imagesName = "test";
     //    private String imagesDir = "faces";
 //    private String imagesName = "facesC";
     //    private String imagesDir = "scene";
@@ -31,7 +31,7 @@ public class FiveSlide extends Base {
     private String opTsrc = imagesName + "T.png";
     private String opBTsrc = imagesName + "BT.png";
     private boolean doShuffle = false;
-    private boolean saveOnOneImage = true;
+    private boolean saveOnOneImage = false;
 
     double hmm = 297;
     double wmm = 210;
@@ -58,7 +58,7 @@ public class FiveSlide extends Base {
     ArrayList<Bottom> bottoms = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
-        threeSlide.doAll();
+        fiveSlide.doAll();
     }
 
     private void doAll() throws IOException {
@@ -311,23 +311,22 @@ public class FiveSlide extends Base {
         opGB.setColor(Color.RED);
         opGB.fillRect((www + border) / 2, border, pixelWidth, pixelWidth);
         opGB.fillRect((www + border) / 2, hhh + border - pixelWidth, pixelWidth, pixelWidth);
-
-//        opGB.fillRect(border, border, pixelWidth, pixelWidth);
-//        opGB.fillRect((www + border) / 2, border, pixelWidth, pixelWidth);
-//        opGB.fillRect(www + border - pixelWidth, border, pixelWidth, pixelWidth);
-//        opGB.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
-//        opGB.fillRect((www + border) / 2, hhh + border - pixelWidth, pixelWidth, pixelWidth);
-//        opGB.fillRect(www + border - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGB.fillRect(border, border, pixelWidth, pixelWidth);
+        opGB.fillRect((www + border) / 2, border, pixelWidth, pixelWidth);
+        opGB.fillRect(www + border - pixelWidth, border, pixelWidth, pixelWidth);
+        opGB.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGB.fillRect((www + border) / 2, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGB.fillRect(www + border - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
 
         opGT.setColor(Color.RED);
         opGT.fillRect(-(2 * pixelWidth) + ((www + border) / 2), border, pixelWidth, pixelWidth);
         opGT.fillRect(-(2 * pixelWidth) + ((www + border) / 2), hhh + border - pixelWidth, pixelWidth, pixelWidth);
-//        opGT.fillRect(border, border, pixelWidth, pixelWidth);
-//        opGT.fillRect(((www + border) / 2) - pixelWidth, border, pixelWidth, pixelWidth);
-//        opGT.fillRect(www + border - (3 * pixelWidth), border, pixelWidth, pixelWidth);
-//        opGT.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
-//        opGT.fillRect(((www + border) / 2) - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
-//        opGT.fillRect(www + border - (3 * pixelWidth), hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGT.fillRect(border, border, pixelWidth, pixelWidth);
+        opGT.fillRect(((www + border) / 2) - pixelWidth, border, pixelWidth, pixelWidth);
+        opGT.fillRect(www + border - (3 * pixelWidth), border, pixelWidth, pixelWidth);
+        opGT.fillRect(border, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGT.fillRect(((www + border) / 2) - pixelWidth, hhh + border - pixelWidth, pixelWidth, pixelWidth);
+        opGT.fillRect(www + border - (3 * pixelWidth), hhh + border - pixelWidth, pixelWidth, pixelWidth);
     }
 
 }

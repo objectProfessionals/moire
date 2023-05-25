@@ -1,6 +1,7 @@
-package com.op.moire.fourstack;
+package com.op.moire.fourstack.bold;
 
 import com.op.moire.Base;
+import com.op.moire.fourstack.multi.CalculateNum;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,17 +12,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FourStackColor extends Base {
+public class FourStackBold extends Base {
 
-    private static final FourStackColor fourStack = new FourStackColor();
-    private final CalculateColor calculate = new CalculateColor();
+    private static final FourStackBold fourStack = new FourStackBold();
+    private final CalculateGrid calculate = new CalculateGrid();
     private String imagesDir = "test3";
     private String imagesName = "test";
     private String dir = hostDir + "fourStack/" + imagesDir + "/";
     private String ipExt = ".png";
     private String opExt = ".png";
-    private String opSuff = "_OUT";
-    private String printFile = imagesName+"_TXT.txt";
+    private String opSuff = "_BOLD";
+    private String printFile = imagesName + "_TXT.txt";
     private String ip1src = imagesName + "1" + ipExt;
     private String ip2src = imagesName + "2" + ipExt;
     private String ip3src = imagesName + "3" + ipExt;
@@ -71,8 +72,8 @@ public class FourStackColor extends Base {
     int iph = 0;
     int opw = 0;
     int oph = 0;
-    int opFactor = 20;
-    PrintWriter printWriter;
+    int cellWidth = 8;
+    int opFactor = cellWidth*4;
 
 
     HashMap<String, String[]> stored = new HashMap<>();
@@ -83,6 +84,7 @@ public class FourStackColor extends Base {
 
     private void doAll() throws IOException {
         initImages();
+        calculate.setup();
 
         drawAll();
 
@@ -90,8 +92,8 @@ public class FourStackColor extends Base {
     }
 
     private void drawAll() {
-        String parms = calculate.all + ":" + calculate.off + ":" + calculate.on + ":" + calculate.off8 + ":" + calculate.on8 + ":" + calculate.offPair + ":" + calculate.onPair;
-        printWriter.println("parms=all:off:on:off8:on8:offPair:onPair" + parms);
+//        String parms = calculate.getAllParms();
+//        printWriter.println(parms);
         for (int y = 0; y < iph; y++) {
             for (int x = 0; x < ipw; x++) {
                 drawCell(x, y);
@@ -102,7 +104,7 @@ public class FourStackColor extends Base {
 
     private void drawCell(int x, int y) {
         System.out.println("x,y:" + x + "," + y);
-        int off = 100;
+        int off = 50;
         boolean b1 = new Color(ipImage1.getRGB(x, y)).getRed() < off;
         boolean b2 = new Color(ipImage2.getRGB(x, y)).getRed() < off;
         boolean b3 = new Color(ipImage3.getRGB(x, y)).getRed() < off;
@@ -128,52 +130,37 @@ public class FourStackColor extends Base {
         if (result == null) {
             boolean[] blacks = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
             ArrayList<String[]> caclulated = calculate.calculate(blacks);
-            if (caclulated.isEmpty()) {
-                printWriter.close();
-            }
-            int rnd = (int) (Math.random() * caclulated.size());
-            result = caclulated.get(rnd);
-            printWriter.println(bl + "," + result[0] + "," + result[1] + "," + result[2] + "," + result[3]);
+//            if (caclulated.isEmpty()) {
+//                printWriter.close();
+//            }
+//            int rnd = (int) (Math.random() * caclulated.size());
+//            result = caclulated.get(rnd);
+            result = caclulated.get(0);
+
             stored.put(bl, result);
         }
 
-        drawCellCircle(op1, x, y, result[0]);
-        drawCellCircle(op2, x, y, result[1]);
-        drawCellCircle(op4, x, y, result[2]);
-        drawCellCircle(op8, x, y, result[3]);
+        drawCell(op1, x, y, result[0]);
+        drawCell(op2, x, y, result[1]);
+        drawCell(op4, x, y, result[2]);
+        drawCell(op8, x, y, result[3]);
     }
 
     private void drawCell(Graphics2D op, int x, int y, String str) {
 
-        int dim = 3;
+        int d = opFactor/cellWidth;
         char[] chars = str.toCharArray();
         int i = 0;
-        for (int yy = 0; yy < dim; yy++) {
-            for (int xx = 0; xx < dim; xx++) {
+        for (int yy = 0; yy < cellWidth; yy++) {
+            for (int xx = 0; xx < cellWidth; xx++) {
                 if (i < chars.length) {
-                    String colStr = Character.toString(chars[i]);
+                    String colStr = Character.toString(chars[i]) + Character.toString(chars[i+1]);
                     Color col = calculate.str2Col.get(colStr);
                     op.setColor(col);
-                    op.fillRect(x * opFactor + xx, y * opFactor + yy, 1, 1);
+                    op.fillRect(x * opFactor + xx*d, y * opFactor + yy*d, d, d);
                 }
-                i++;
+                i=i+2;
             }
-        }
-    }
-
-    private void drawCellCircle(Graphics2D op, int x, int y, String str) {
-
-        char[] chars = str.toCharArray();
-        int degs = 0;
-        int degsD = 360 / chars.length;
-        for (int i = 0; i < chars.length; i++) {
-            String colStr = Character.toString(chars[i]);
-            Color col = calculate.str2Col.get(colStr);
-            op.setColor(col);
-            op.fillArc(x * opFactor, y * opFactor, opFactor, opFactor, degs, degsD);
-
-            degs = degs + degsD;
-            //op.fillRect(x * opFactor + xx, y * opFactor + yy, 1, 1);
         }
     }
 
@@ -183,7 +170,6 @@ public class FourStackColor extends Base {
         savePNGFile(opImage2, dir + op2src, dpi);
         savePNGFile(opImage4, dir + op4src, dpi);
         savePNGFile(opImage8, dir + op8src, dpi);
-        printWriter.close();
     }
 
     private void initImages() throws IOException {
@@ -229,8 +215,6 @@ public class FourStackColor extends Base {
         op8 = (Graphics2D) opImage8.getGraphics();
         op8.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
-
-        printWriter = new PrintWriter(dir+printFile);
 
     }
 

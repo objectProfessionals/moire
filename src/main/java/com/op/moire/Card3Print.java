@@ -12,7 +12,7 @@ public class Card3Print extends Base {
     private static final String ipFileName1 = "sanjay";
     private static final String ipFileName2 = "virginija";
     private static final String ipFileName3 = "love";
-    private static final String opFileName = "card";
+    private static final String opFileName = "Card3Print";
     private static final String dir = "misc/cards/";
     private static final String outFileExt = ".png";
 
@@ -23,8 +23,8 @@ public class Card3Print extends Base {
     private boolean addBorder = false;
     private double border = 20;
     private double dpi = 81.280;
-    private Color bg1 = Color.YELLOW;
-    private Color bg2 = Color.CYAN;
+    private Color bg1 = Color.WHITE;
+    private Color bg2 = Color.WHITE;
     private Color white = Color.WHITE;
     private Color black = Color.BLACK;
 

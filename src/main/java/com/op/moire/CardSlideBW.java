@@ -11,12 +11,12 @@ import java.util.HashMap;
 
 public class CardSlideBW extends Base {
 
-    private static final String ipFileName1 = "ccMessage1";
-    private static final String ipFileName2 = "ccMessage2";
+    private static final String ipFileName1 = "Geoff";
+    private static final String ipFileName2 = "Laxmi";
     // private static final String ipFileName1 = "sanjayBW";
     // private static final String ipFileName2 = "virginijaBW";
-    private static final String opBottom = "slideBottomBW";
-    private static final String opTop = "slideTopBW";
+    private static final String opBottom = "cardSlideBWBottom";
+    private static final String opTop = "cardSlideBWTop";
     private static final String dir = "misc/cards/";
     private static final String outFileExt = ".png";
 
@@ -29,7 +29,7 @@ public class CardSlideBW extends Base {
     private int hh = -1;
     private boolean addBorder = false;
     private int border = -1;
-    private double dpi = 101.6;
+    private double dpi = 100;
     private double mm2in = 25.4;
     private HashMap<String, Color> map;
 
@@ -218,8 +218,8 @@ public class CardSlideBW extends Base {
     }
 
     protected void saveImages() throws Exception {
-        saveImage(opBottom, opImageBottom, opGBottom);
-        saveImage(opTop, opImageTop, opGTop);
+        saveImage(opBottom+ipFileName1+ipFileName2, opImageBottom, opGBottom);
+        saveImage(opTop+ipFileName1+ipFileName2, opImageTop, opGTop);
     }
 
     protected void saveImage(String op, BufferedImage opImage, Graphics2D opG)

@@ -1,6 +1,6 @@
-package com.op.moire.fourstack;
+package com.op.moire.fourstack.cmyk;
 
-public class Pair {
+public class Pair extends Pixel {
 
     String s1 = "";
     String s2 = "";
@@ -28,6 +28,7 @@ public class Pair {
         mer = m;
         return m;
     }
+
     private String merge(String c1, String c2) {
         if (isEither(c1, c2, "C", "C")) {
             return "C";
@@ -76,6 +77,21 @@ public class Pair {
         return (s1.equals(c1) && s2.equals(c2)) || (s1.equals(c2) && s2.equals(c1));
     }
 
+    public boolean succesMerge(int off, int on, char co) {
+        String m = merged();
+        char[] chars = m.toCharArray();
+        int nOff = 0;
+        int nOn = 0;
+        for (char c : chars) {
+            if (c == co) {
+                nOn++;
+            } else {
+                nOff++;
+            }
+        }
+        return (nOn == on && nOff >= off);
+    }
+
     public boolean succesMerge(int on, char co) {
         String m = merged();
         char[] chars = m.toCharArray();
@@ -90,4 +106,16 @@ public class Pair {
         }
         return (nOn == on);
     }
+
+    public boolean checkMerged(int numBlacks) {
+        if (darks.isEmpty()) {
+            darks.add("M");
+            darks.add("R");
+            darks.add("G");
+            darks.add("B");
+        }
+
+        return super.checkMerged(numBlacks, s1, s2, null, null);
+    }
+
 }

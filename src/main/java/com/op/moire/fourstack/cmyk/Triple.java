@@ -1,6 +1,6 @@
-package com.op.moire.fourstack;
+package com.op.moire.fourstack.cmyk;
 
-public class Triple {
+public class Triple extends Pixel {
 
     String s1 = "";
     String s2 = "";
@@ -19,7 +19,35 @@ public class Triple {
         return this.mer.equals(p.mer);
     }
 
-    public String merged() {
+    public boolean checkMerged(int numBlacks) {
+        if (darks.isEmpty()) {
+            darks.add("M");
+            darks.add("R");
+            darks.add("G");
+            darks.add("B");
+            darks.add("X");
+        }
+
+        return super.checkMerged(numBlacks, s1, s2, s3, null);
+    }
+
+    private int merge(String p1, String p2, String p3) {
+        int cM = count("M", p1, p2, p3);
+//        int cR = equals("R", p1, p2, p3) ? 1 : 0;
+//        int cG = equals("G", p1, p2, p3) ? 1 : 0;
+//        int cB = equals("B", p1, p2, p3) ? 1 : 0;
+
+        return cM;
+    }
+
+    private int count(String b, String p1, String p2, String p3) {
+        int c1 = p1.equals(b) ? 1 : 0;
+        int c2 = p2.equals(b) ? 1 : 0;
+        int c3 = p3.equals(b) ? 1 : 0;
+        return c1 + c2 + c3;
+    }
+
+    public String merged2() {
         String m = "";
         for (int i = 0; i < s1.length(); i++) {
             String c1 = s1.substring(i, i + 1);
@@ -31,7 +59,8 @@ public class Triple {
         mer = m;
         return m;
     }
-    private String merge(String c1, String c2, String c3) {
+
+    private String merge2(String c1, String c2, String c3) {
 
         if (isEither(c1, c2, c3, "C", "C", "C")) {
             return "C";
@@ -51,15 +80,6 @@ public class Triple {
         if (isEither(c1, c2, c3, "C", "Y", "Y")) {
             return "G";
         }
-        if (isEither(c1, c2, c3, "C", "Y", "0")) {
-            return "G";
-        }
-        if (isEither(c1, c2, c3, "C", "0", "0")) {
-            return "C";
-        }
-        if (isEither(c1, c2, c3, "C", "C", "0")) {
-            return "C";
-        }
 
         if (isEither(c1, c2, c3, "M", "M", "M")) {
             return "M";
@@ -76,39 +96,12 @@ public class Triple {
         if (isEither(c1, c2, c3, "M", "Y", "Y")) {
             return "R";
         }
-        if (isEither(c1, c2, c3, "C", "M", "0")) {
-            return "B";
-        }
-        if (isEither(c1, c2, c3, "M", "Y", "0")) {
-            return "R";
-        }
-        if (isEither(c1, c2, c3, "M", "M", "0")) {
-            return "M";
-        }
-        if (isEither(c1, c2, c3, "M", "0", "0")) {
-            return "M";
-        }
 
         if (isEither(c1, c2, c3, "Y", "Y", "Y")) {
             return "Y";
         }
-        if (isEither(c1, c2, c3, "Y", "Y", "0")) {
-            return "Y";
-        }
-        if (isEither(c1, c2, c3, "Y", "0", "0")) {
-            return "Y";
-        }
 
         if (isEither(c1, c2, c3, "Y", "C", "M")) {
-            return "X";
-        }
-        if (isEither(c1, c2, c3, "C", "M", "X")) {
-            return "X";
-        }
-        if (isEither(c1, c2, c3, "C", "X", "Y")) {
-            return "X";
-        }
-        if (isEither(c1, c2, c3, "X", "M", "Y")) {
             return "X";
         }
         return "0";
@@ -124,19 +117,18 @@ public class Triple {
 
     }
 
-
-    public boolean succesMerge(int on, char co1, char co2 ) {
-        String m = merged();
+    public boolean succesMerge(int off, int on, char co) {
+        String m = merged2();
         char[] chars = m.toCharArray();
         int nOff = 0;
         int nOn = 0;
         for (char c : chars) {
-            if (c == co1 || c == co2) {
+            if (c == co) {
                 nOn++;
             } else {
                 nOff++;
             }
         }
-        return (nOn == on);
+        return (nOn == on && nOff >= off);
     }
 }

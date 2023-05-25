@@ -12,25 +12,28 @@ import java.util.Collections;
 
 public class ThreeSlide extends Base {
     private static final ThreeSlide threeSlide = new ThreeSlide();
-    private String imagesDir = "faces";
-    private String imagesName = "facesB";
+    private String imagesDir = "ILU";
+    private String imagesName = "ILU";
     //    private String imagesDir = "scene";
 //    private String imagesName = "scene";
     //    private String imagesDir = "line";
 //    private String imagesName = "line";
     private String dir = hostDir + "threeSlide/" + imagesDir + "/";
-    private String ip1src = imagesName + "1.png";
-    private String ip2src = imagesName + "2.png";
-    private String ip3src = imagesName + "3.png";
-    private String opBsrc = imagesName + "B.png";
-    private String opTsrc = imagesName + "T.png";
-    private boolean doShuffle = false;
+    private String ext = ".png";
+    private String ip1src = imagesName + "1"+ext;
+    private String ip2src = imagesName + "2"+ext;
+    private String ip3src = imagesName + "3"+ext;
+    private String opBsrc = imagesName + "B"+ext;
+    private String opTsrc = imagesName + "T"+ext;
+    private boolean doShuffle = true;
 
-    double dpi = 5 * 25.4;
+    double dpi = -1;
     int ww = -1;
     int hh = -1;
     int www = -1;
     int hhh = -1;
+    int imageWmm = 250;
+    double borderF = 0.05;
     int border = -1;
     int pixelWidth = -1;
 
@@ -44,6 +47,7 @@ public class ThreeSlide extends Base {
 
     ArrayList<Top> tops = new ArrayList<>();
     ArrayList<Bottom> bottoms = new ArrayList<>();
+    boolean randomise = false;
 
     public static void main(String[] args) throws Exception {
         threeSlide.doAll();
@@ -78,7 +82,7 @@ public class ThreeSlide extends Base {
         if (row != null) {
             setPixels(row, x, y);
         } else {
-            System.out.println("row is null at x,y:"+x+ ","+y);
+            System.out.println("row is null at x,y:" + x + "," + y);
         }
         return row;
     }
@@ -99,13 +103,13 @@ public class ThreeSlide extends Base {
     private void setPixelsFirst(Row row, int x, int y) {
         float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y)) / 3.0);
 
-        boolean[] tb = row.botn1.getValueAsBooleans();
+        boolean[] tb = row.botn1.getValueAsBooleans(randomise);
         fill(opGB, tb, pixelWidth * x, pixelWidth * y, avgGrey);
 
-        boolean[] tb2 = row.botn2.getValueAsBooleans();
+        boolean[] tb2 = row.botn2.getValueAsBooleans(randomise);
         fill(opGB, tb2, pixelWidth * (x + 1), pixelWidth * y, avgGrey);
 
-        boolean[] tt = row.top.getValueAsBooleans();
+        boolean[] tt = row.top.getValueAsBooleans(randomise);
         fill(opGT, tt, pixelWidth * x, pixelWidth * y, avgGrey);
 
     }
@@ -113,10 +117,10 @@ public class ThreeSlide extends Base {
     private void setPixels(Row row, int x, int y) {
         float avgGrey = (float) ((getGrey(ipImage1, x, y) + getGrey(ipImage2, x, y) + getGrey(ipImage3, x, y)) / 3.0);
 
-        boolean[] tb3 = row.botn2.getValueAsBooleans();
+        boolean[] tb3 = row.botn2.getValueAsBooleans(randomise);
         fill(opGB, tb3, pixelWidth * (x + 1), pixelWidth * y, avgGrey);
 
-        boolean[] tt = row.top.getValueAsBooleans();
+        boolean[] tt = row.top.getValueAsBooleans(randomise);
         fill(opGT, tt, pixelWidth * x, pixelWidth * y, avgGrey);
 
     }
@@ -137,7 +141,7 @@ public class ThreeSlide extends Base {
 
     private Row matchBottom(boolean a1, boolean a2, boolean a3, int i2, int i3) {
         shuffle(tops);
-        System.out.println("a1,a2,a3 i2,i3="+a1+","+a2+","+a3+","+i2+","+i3);
+        System.out.println("a1,a2,a3 i2,i3=" + a1 + "," + a2 + "," + a3 + "," + i2 + "," + i3);
         for (Top top : tops) {
             //int[] matches = top.matchBlacks(a1, a2, a3, i2, i3);
             int[] matches = top.matchBlacksRnd(a1, a2, a3, i2, i3);
@@ -215,13 +219,15 @@ public class ThreeSlide extends Base {
         www = ww * pixelWidth;
         hhh = hh * pixelWidth;
 
-        border = (int) ((double) (www) * 0.05);
+        border = (int) ((double) (www) * borderF);
 
         System.out.println("Creating...");
         opImageB = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
         opGB = (Graphics2D) opImageB.getGraphics();
         opGB.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
+        opGB.setColor(Color.WHITE);
+        opGB.fillRect(0, 0, www + 2 * border, hhh + 2 * border);
         opGB.setColor(Color.BLACK);
 
         opImageT = createAlphaBufferedImage(www + 2 * border, hhh + 2 * border);
@@ -248,6 +254,11 @@ public class ThreeSlide extends Base {
     }
 
     private void saveImages() {
+        double wmm = imageWmm;
+        double mm2in = 25.4;
+        double totW = www + 2 * border;
+
+        dpi = totW/(wmm/mm2in);
         savePNGFile(opImageB, dir + opBsrc, dpi);
         savePNGFile(opImageT, dir + opTsrc, dpi);
     }

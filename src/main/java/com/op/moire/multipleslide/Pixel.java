@@ -1,6 +1,7 @@
 package com.op.moire.multipleslide;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class Pixel {
 
@@ -12,6 +13,9 @@ public class Pixel {
     static final int NUM_BLACKS_TOP = NUMS[2];
     static final int NUM_BLACKS_BOTTOM = NUMS[3];
     String value;
+    protected static Random random = new Random(1);
+    protected int rndOff = (int) (random.nextDouble()*Pixel.NUM_PIXELS);
+
 
     boolean[] getValueAsBooleans() {
         boolean[] b = new boolean[NUM_PIXELS];
@@ -25,6 +29,20 @@ public class Pixel {
         return b;
     }
 
+    boolean[] getValueAsBooleans(boolean randomise) {
+        if (!randomise) {
+            return getValueAsBooleans();
+        }
+        boolean[] newBs = new boolean[NUM_PIXELS];
+        boolean[] bvs = getValueAsBooleans();
+        for (int i=0; i< bvs.length; i++) {
+            int ii = (i + rndOff) % NUM_PIXELS;
+            newBs[ii] = bvs[i];
+        }
+
+        return newBs;
+
+    }
     boolean isAllBlack(boolean checkBlack) {
         boolean[] blacks = getValueAsBooleans();
         for (boolean black : blacks) {

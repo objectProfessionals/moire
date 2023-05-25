@@ -1,27 +1,30 @@
-package com.op.moire.fourstack;
+package com.op.moire.fourstack.cmykvalues;
 
 import com.op.moire.Base;
+import com.op.moire.fourstack.sets.KMColorUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
-public class FourStackColor extends Base {
+import static java.awt.Color.WHITE;
 
-    private static final FourStackColor fourStack = new FourStackColor();
-    private final CalculateColor calculate = new CalculateColor();
-    private String imagesDir = "test3";
-    private String imagesName = "test";
+public class FourStackValues extends Base {
+
+    private static final FourStackValues fourStack = new FourStackValues();
+    private String imagesDir = "values";
+    private String imagesName = "testl";
     private String dir = hostDir + "fourStack/" + imagesDir + "/";
     private String ipExt = ".png";
     private String opExt = ".png";
-    private String opSuff = "_OUT";
-    private String printFile = imagesName+"_TXT.txt";
+    private String opSuff = "_VAL";
+    private String valuesFile = "PIXEL_1.csv";
     private String ip1src = imagesName + "1" + ipExt;
     private String ip2src = imagesName + "2" + ipExt;
     private String ip3src = imagesName + "3" + ipExt;
@@ -71,11 +74,9 @@ public class FourStackColor extends Base {
     int iph = 0;
     int opw = 0;
     int oph = 0;
-    int opFactor = 20;
-    PrintWriter printWriter;
-
-
-    HashMap<String, String[]> stored = new HashMap<>();
+    int opFactor = 2;
+    HashMap<String, Quad> bools2Quad = new HashMap<>();
+    Random random = new Random(1);
 
     public static void main(String[] args) throws Exception {
         fourStack.doAll();
@@ -84,14 +85,53 @@ public class FourStackColor extends Base {
     private void doAll() throws IOException {
         initImages();
 
+        readCSVFile();
         drawAll();
 
+        saveLayered(opImage1, opImage2, null, null, "3");
+        saveLayered(opImage1, opImage2, opImage4, null, "7");
+        saveLayered(opImage1, opImage2, opImage4, opImage8, "15");
         saveAsImages();
     }
 
+    private void readCSVFile() {
+        BufferedReader reader;
+        int c = 1;
+        try {
+            reader = new BufferedReader(new FileReader(
+                    dir + valuesFile));
+            String line = reader.readLine();
+            while (line != null) {
+                //System.out.println(c + ":" + line);
+                line = reader.readLine();
+                if (line == null) {
+                    continue;
+                }
+                String pixels = line.substring(0, line.indexOf(","));
+                String rest = line.substring(line.indexOf(",") + 1);
+                String other = rest.substring(rest.indexOf(",") + 1);
+                String cell1 = pixels.substring(1, 5);
+                String cell2 = pixels.substring(6, 10);
+                String cell4 = pixels.substring(11, 15);
+                String cell8 = pixels.substring(16, 20);
+                Pixel p1 = new Pixel(cell1, false);
+                Pixel p2 = new Pixel(cell2, false);
+                Pixel p4 = new Pixel(cell4, false);
+                Pixel p8 = new Pixel(cell8, false);
+                Quad quad = new Quad(p1, p2, p4, p8, false);
+                bools2Quad.put(other, quad);
+                c++;
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void drawAll() {
-        String parms = calculate.all + ":" + calculate.off + ":" + calculate.on + ":" + calculate.off8 + ":" + calculate.on8 + ":" + calculate.offPair + ":" + calculate.onPair;
-        printWriter.println("parms=all:off:on:off8:on8:offPair:onPair" + parms);
+//        String parms = calculate.getAllParms();
+//        printWriter.println(parms);
         for (int y = 0; y < iph; y++) {
             for (int x = 0; x < ipw; x++) {
                 drawCell(x, y);
@@ -119,40 +159,47 @@ public class FourStackColor extends Base {
         boolean b14 = new Color(ipImage14.getRGB(x, y)).getRed() < off;
         boolean b15 = new Color(ipImage15.getRGB(x, y)).getRed() < off;
 
-        Boolean[] Blacks = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
-        String bl = "";
-        for (boolean b : Blacks) {
-            bl = bl + (b ? "1" : "0");
-        }
-        String[] result = stored.get(bl);
-        if (result == null) {
-            boolean[] blacks = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
-            ArrayList<String[]> caclulated = calculate.calculate(blacks);
-            if (caclulated.isEmpty()) {
-                printWriter.close();
-            }
-            int rnd = (int) (Math.random() * caclulated.size());
-            result = caclulated.get(rnd);
-            printWriter.println(bl + "," + result[0] + "," + result[1] + "," + result[2] + "," + result[3]);
-            stored.put(bl, result);
+        int offset = (int)(random.nextDouble()*4);
+
+        Boolean[] blacks = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
+        String bl = getBlacksString(blacks);
+        Quad quad = bools2Quad.get(bl);
+
+        int c = blacks.length-1;
+        while (quad == null) {
+            System.out.println(bl + ": does not exist");
+            blacks[c] = false;
+            bl = getBlacksString(blacks);
+            quad = bools2Quad.get(bl);
+            c--;
         }
 
-        drawCellCircle(op1, x, y, result[0]);
-        drawCellCircle(op2, x, y, result[1]);
-        drawCellCircle(op4, x, y, result[2]);
-        drawCellCircle(op8, x, y, result[3]);
+        drawCell(op1, x, y, quad.p1, offset);
+        drawCell(op2, x, y, quad.p2, offset);
+        drawCell(op4, x, y, quad.p4, offset);
+        drawCell(op8, x, y, quad.p8, offset);
     }
 
-    private void drawCell(Graphics2D op, int x, int y, String str) {
+    private String getBlacksString(Boolean[] blacks) {
+        String bl = "";
+        for (boolean b : blacks) {
+            bl = bl + (b ? "true," : "false,");
+        }
+        bl = bl.substring(0, bl.length() - 1);
+        return bl;
+    }
 
-        int dim = 3;
-        char[] chars = str.toCharArray();
+    private void drawCell(Graphics2D op, int x, int y, Pixel pix, int offset) {
+
+        int dim = 2;
+        char[] chars = pix.cell.toCharArray();
+        char[] charsOff = {chars[offset], chars[(offset+1)%4], chars[(offset+2)%4],chars[(offset+3)%4]};
         int i = 0;
         for (int yy = 0; yy < dim; yy++) {
             for (int xx = 0; xx < dim; xx++) {
-                if (i < chars.length) {
-                    String colStr = Character.toString(chars[i]);
-                    Color col = calculate.str2Col.get(colStr);
+                if (i < charsOff.length) {
+                    String colStr = Character.toString(charsOff[i]);
+                    Color col = Pixel.getColor(colStr);
                     op.setColor(col);
                     op.fillRect(x * opFactor + xx, y * opFactor + yy, 1, 1);
                 }
@@ -161,14 +208,14 @@ public class FourStackColor extends Base {
         }
     }
 
-    private void drawCellCircle(Graphics2D op, int x, int y, String str) {
+    private void drawCellCircle(Graphics2D op, int x, int y, Pixel pix) {
 
-        char[] chars = str.toCharArray();
+        char[] chars = pix.cell.toCharArray();
         int degs = 0;
         int degsD = 360 / chars.length;
         for (int i = 0; i < chars.length; i++) {
             String colStr = Character.toString(chars[i]);
-            Color col = calculate.str2Col.get(colStr);
+            Color col = Pixel.str2Col.get(colStr);
             op.setColor(col);
             op.fillArc(x * opFactor, y * opFactor, opFactor, opFactor, degs, degsD);
 
@@ -183,7 +230,6 @@ public class FourStackColor extends Base {
         savePNGFile(opImage2, dir + op2src, dpi);
         savePNGFile(opImage4, dir + op4src, dpi);
         savePNGFile(opImage8, dir + op8src, dpi);
-        printWriter.close();
     }
 
     private void initImages() throws IOException {
@@ -230,8 +276,41 @@ public class FourStackColor extends Base {
         op8.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        printWriter = new PrintWriter(dir+printFile);
-
     }
 
+    private void saveLayered(BufferedImage opImageA, BufferedImage opImageB, BufferedImage opImageC, BufferedImage opImageD, String file) {
+        BufferedImage opImage = createAlphaBufferedImage(opw, oph);
+        Graphics2D op = (Graphics2D) opImage.getGraphics();
+        op.setColor(WHITE);
+        op.fillRect(0, 0, opw, oph);
+
+        mixImage(op, opImageA, opImageB, opImageC, opImageD);
+        savePNGFile(opImage, dir + imagesName + opSuff + file + opExt, 100);
+    }
+
+    private void mixImage(Graphics2D op, BufferedImage opImageA, BufferedImage opImageB, BufferedImage opImageC, BufferedImage opImageD) {
+        for (int y = 0; y < oph; y++) {
+            for (int x = 0; x < opw; x++) {
+                Color colA = new Color(opImageA.getRGB(x, y));
+                Color colB = new Color(opImageB.getRGB(x, y));
+                Color res = KMColorUtils.mix(colA, colB);
+                Color res3 = res;
+                if (opImageC !=null) {
+                    Color colC = new Color(opImageC.getRGB(x, y));
+                    Color res2 = KMColorUtils.mix(res, colC);
+                    if (opImageD !=null) {
+                        Color colD = new Color(opImageD.getRGB(x, y));
+                        res3 = KMColorUtils.mix(res2, colD);
+                    } else {
+                        res3 = res2;
+                    }
+                } else {
+                    res3 = res;
+                }
+                op.setColor(res3);
+                op.fillRect(x, y, 1, 1);
+            }
+
+        }
+    }
 }

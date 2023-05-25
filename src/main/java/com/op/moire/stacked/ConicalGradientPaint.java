@@ -351,7 +351,7 @@ public final class ConicalGradientPaint implements java.awt.Paint {
             for (int py = 0; py < TILE_HEIGHT; py++) {
                 for (int px = 0; px < TILE_WIDTH; px++) {
 
-                    // Calculate the distance between the current position and
+                    // CalculateVennByBit the distance between the current position and
                     // the rotation angle
                     dx = px - ROTATION_CENTER_X;
                     dy = py - ROTATION_CENTER_Y;

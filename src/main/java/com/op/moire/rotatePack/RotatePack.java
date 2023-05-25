@@ -15,10 +15,10 @@ import java.util.Random;
 
 public class RotatePack extends Base {
     private static final RotatePack fourRotate = new RotatePack();
-    private String imagesDir = "ilu";
-    private String imagesName = "ilu";
+    private String imagesDir = "1234";
+    private String imagesName = "test";
     private String dir = hostDir + "rotatePack/" + imagesDir + "/";
-    private String ipExt = ".jpg";
+    private String ipExt = ".png";
     private String opExt = ".png";
     private String ip1src = imagesName + "1" + ipExt;
     private String ip2src = imagesName + "2" + ipExt;
@@ -28,7 +28,7 @@ public class RotatePack extends Base {
     private String opTsrc = imagesName + "T" + opExt;
     private String opBTsrc = imagesName + "BT.png";
     private String opB1234src = imagesName + "B1234" + ipExt;
-    private boolean saveOnOneImage = false;
+    private boolean saveOnOneImageToo = true;
     private boolean drawCircle = false;
 
     double dpi = -1;
@@ -53,7 +53,7 @@ public class RotatePack extends Base {
     double angInc = 5;
     int maxCircles = 1000;
     double absMinR = 5; // need 2mm dia
-    double minR = 39; //49;
+    double minR = 40; //49;
     double maxR = 40; //50;
     private int maxTryCount = 1000;
     double spacer = 1;
@@ -362,11 +362,10 @@ public class RotatePack extends Base {
     }
 
     private void saveImages() {
-        if (saveOnOneImage) {
+        if (saveOnOneImageToo) {
             saveAsOneImage();
-        } else {
-            saveAsTwoImages();
         }
+        saveAsTwoImages();
     }
 
     private void initImages() throws IOException {
@@ -449,6 +448,18 @@ public class RotatePack extends Base {
     }
 
     private void saveAsTwoImages() {
+        opGB.setColor(Color.RED);
+        float strmm = 0.25f;
+        float str = strmm *(float)(dpi/25.4); // 1mm
+        opGB.setStroke(new BasicStroke(str));
+        opGB.drawRect(0, 0, opw, oph);
+        opGB.drawRect(0, 0, opw, oph);
+
+        opGT.setColor(Color.RED);
+        opGT.setStroke(new BasicStroke(str));
+        opGT.drawRect(0, 0, opw, oph);
+        opGT.drawRect(0, 0, opw, oph);
+
         savePNGFile(opImageB, dir + opBsrc, dpi);
         savePNGFile(opImageT, dir + opTsrc, dpi);
     }
